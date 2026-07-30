@@ -1,0 +1,307 @@
+/* ============================================================
+   קול תורה — לוח שמחות
+   עיצוב: מינימליסטי ונקי — הרבה רווח לבן, גופן אחיד, פחות "תעודה" יותר אפליקציה
+   פלטה: bg (לבן שבור), surface (לבן), ink (טקסט כהה),
+          accent (ירוק-אזמרגד כהה), gold (הדגשה עדינה נקודתית)
+   טיפוגרפיה: Assistant לכל האתר
+   גרסה קלאסית שמורה ב-style.classic.css.bak
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --ink: #17181c;
+  --ink-soft: #33353b;
+  --muted: #75787f;
+  --border: #e7e7ea;
+  --border-strong: #d7d8dc;
+  --accent: #1f5f52;
+  --accent-soft: #e6efec;
+  --accent-dark: #163f37;
+  --gold: #b8862f;
+  --danger: #b3261e;
+  --danger-soft: #fbeceb;
+  --success: #1f5f3f;
+  --success-soft: #e9f3ec;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(20,20,25,0.04), 0 8px 24px rgba(20,20,25,0.06);
+  --shadow-sm: 0 1px 2px rgba(20,20,25,0.05);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Assistant', sans-serif;
+  direction: rtl;
+}
+
+body { min-height: 100vh; }
+
+h1, h2, h3, .display {
+  font-family: 'Assistant', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- מבנה כללי ---------- */
+.site-header {
+  text-align: center;
+  padding: 48px 20px 30px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.site-header .eyebrow {
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: none;
+  margin-bottom: 10px;
+}
+
+.site-header h1 {
+  font-size: clamp(30px, 5.5vw, 44px);
+  color: var(--ink);
+}
+
+.site-header p {
+  color: var(--muted);
+  margin-top: 10px;
+  font-size: 15.5px;
+}
+
+.nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.nav-back:hover { text-decoration: underline; }
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 18px 60px;
+}
+
+.card-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 26px;
+  position: relative;
+}
+
+/* ---------- דף הבית ---------- */
+.gates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  max-width: 880px;
+  margin: 10px auto 0;
+  padding: 0 18px;
+}
+
+@media (max-width: 640px) {
+  .gates { grid-template-columns: 1fr; }
+}
+
+.gate {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 24px;
+  text-decoration: none;
+  color: var(--ink);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.gate:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--border-strong);
+}
+
+.gate .gate-icon { font-size: 34px; display: block; margin-bottom: 16px; }
+.gate h2 { font-size: 22px; margin-bottom: 8px; font-weight: 800; }
+.gate p { color: var(--muted); font-size: 14.5px; margin: 0; }
+
+/* ---------- תג "מזל טוב" — גרסה שקטה, לא חותם ---------- */
+.seal {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* ---------- כפתורים ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--ink); color: #fff; }
+.btn-secondary:hover { background: var(--ink-soft); }
+.btn-ghost { background: transparent; color: var(--accent); border-color: var(--border-strong); }
+.btn-ghost:hover { border-color: var(--accent); background: var(--accent-soft); }
+.btn-danger { background: transparent; color: var(--danger); border-color: var(--border-strong); }
+.btn-danger:hover { border-color: var(--danger); background: var(--danger-soft); }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tabs { display: flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); padding: 4px; border-radius: 999px; }
+.tab-btn {
+  border: none; background: transparent; padding: 8px 18px; border-radius: 999px;
+  font-weight: 700; cursor: pointer; color: var(--muted); font-family: 'Assistant', sans-serif; font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tab-btn.active { background: var(--ink); color: #fff; }
+
+/* ---------- טבלה ---------- */
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.data-table th, .data-table td {
+  padding: 13px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+.data-table th { color: var(--muted); font-weight: 700; font-size: 12.5px; text-transform: none; }
+.data-table tr:hover td { background: var(--bg); }
+
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--border); cursor: zoom-in; background: var(--bg);
+}
+.avatar-placeholder {
+  width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--bg); color: var(--muted); font-size: 17px; border: 1px solid var(--border);
+}
+
+.empty-state {
+  text-align: center; padding: 54px 20px; color: var(--muted);
+}
+.empty-state .big { font-size: 30px; display: block; margin-bottom: 10px; opacity: 0.7; }
+
+/* ---------- לוח שנה ---------- */
+.calendar-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.calendar-head h3 { font-size: 18px; font-weight: 800; }
+.calendar-nav { display: flex; gap: 8px; }
+.icon-btn {
+  border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--ink);
+  border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 15px; font-weight: 700;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.icon-btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: 11.5px; color: var(--muted); font-weight: 700; padding-bottom: 6px; }
+.cal-cell {
+  min-height: 72px; border-radius: 8px; background: var(--bg); border: 1px solid transparent;
+  padding: 4px; font-size: 11px; position: relative;
+}
+.cal-cell.empty { background: transparent; }
+.cal-cell.today { border-color: var(--accent); background: var(--accent-soft); }
+.cal-cell .day-num { font-weight: 800; font-size: 12.5px; color: var(--ink); }
+.cal-cell .event-chip {
+  display: block; background: var(--accent); color: #fff; border-radius: 5px;
+  padding: 2px 4px; margin-top: 2px; font-size: 10.5px; line-height: 1.3; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---------- מודלים ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(23,24,28,0.45);
+  display: none; align-items: center; justify-content: center; padding: 16px; z-index: 60;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); border-radius: var(--radius); max-width: 520px; width: 100%;
+  max-height: 88vh; overflow-y: auto; padding: 28px; box-shadow: var(--shadow); position: relative;
+  border: 1px solid var(--border);
+}
+.modal-close {
+  position: absolute; top: 14px; left: 14px; background: none; border: none; font-size: 20px;
+  cursor: pointer; color: var(--muted);
+}
+.modal-box h2 { font-size: 20px; margin-bottom: 6px; font-weight: 800; }
+.modal-box .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 20px; }
+
+.field { margin-bottom: 16px; }
+.field label { display: block; font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-strong);
+  font-family: 'Assistant', sans-serif; font-size: 14.5px; background: var(--surface); color: var(--ink);
+}
+.field input:focus, .field select:focus { border-color: var(--accent); outline: none; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+.field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+.section-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+.form-msg { padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13.5px; margin-bottom: 16px; }
+.form-msg.success { background: var(--success-soft); color: var(--success); }
+.form-msg.error { background: var(--danger-soft); color: var(--danger); }
+
+.loading-row { text-align: center; padding: 34px; color: var(--muted); }
+
+footer.site-footer {
+  text-align: center; color: var(--muted); font-size: 13px; padding: 34px 16px 46px;
+}
+footer.site-footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
+footer.site-footer a:hover { text-decoration: underline; }
