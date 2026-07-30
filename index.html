@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קול תורה | לוח השמחות</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="eyebrow">ישיבת קול תורה</div>
+  <h1>לוח השמחות</h1>
+  <p>מאורסים וחתונות של בני הישיבה — במקום אחד</p>
+</header>
+
+<main class="page">
+  <div class="gates">
+    <a class="gate" href="engaged.html">
+      <span class="seal">מזל<br>טוב</span>
+      <span class="gate-icon">💍</span>
+      <h2>מאורסים</h2>
+      <p>השידוכים האחרונים של בני הישיבה</p>
+    </a>
+    <a class="gate" href="weddings.html">
+      <span class="seal">מזל<br>טוב</span>
+      <span class="gate-icon">💒</span>
+      <h2>חתונות</h2>
+      <p>טבלה ולוח שנה עברי לחתונות הקרובות</p>
+    </a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  יש לכם עדכון או שידוך חדש להוסיף? היכנסו ללוח המתאים ולחצו על "הוספה".
+  <br>
+  <a href="admin.html">כניסת מנהל</a>
+</footer>
+
+<!-- מודל הוראות פתיחה -->
+<div class="modal-overlay" id="introModal">
+  <div class="modal-box">
+    <h2>ברוכים הבאים ללוח השמחות 🎉</h2>
+    <p class="sub">כמה דברים לפני שמתחילים</p>
+    <ul style="padding-right: 20px; line-height: 1.9; font-size: 15px;">
+      <li>כל שידוך או חתונה שנוספים דרך הטופס נשלחים ל<strong>אישור מנהל</strong> ומופיעים בלוח רק לאחר האישור.</li>
+      <li>חתונה נשארת בלוח לאורך כל יום האירוע, ויורדת אוטומטית מהיום שאחריו.</li>
+      <li>נמצאה טעות, או שיש לכם משוב? אפשר לפנות למנהל הלוח ישירות.</li>
+    </ul>
+    <div style="text-align: center; margin-top: 18px;">
+      <button class="btn btn-primary" id="introConfirm">הבנתי, המשך ללוח</button>
+    </div>
+    <button class="modal-close" id="introClose" aria-label="סגור">✕</button>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('introModal');
+  if (!sessionStorage.getItem('kt_intro_seen')) {
+    modal.classList.add('open');
+  }
+  function closeIntro() {
+    modal.classList.remove('open');
+    sessionStorage.setItem('kt_intro_seen', '1');
+  }
+  document.getElementById('introConfirm').addEventListener('click', closeIntro);
+  document.getElementById('introClose').addEventListener('click', closeIntro);
+</script>
+
+</body>
+</html>

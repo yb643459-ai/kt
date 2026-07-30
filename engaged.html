@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מאורסים | קול תורה</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="eyebrow">ישיבת קול תורה</div>
+  <h1>💍 מאורסים</h1>
+  <p>השידוכים האחרונים של בני הישיבה, בס"ד</p>
+</header>
+
+<main class="page">
+  <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
+
+  <div class="card-panel">
+    <div class="toolbar">
+      <div id="countLabel" style="color: var(--muted); font-weight: 700;"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost btn-sm" id="reportBtn">🖊 דיווח למנהל</button>
+        <button class="btn btn-primary" id="addBtn">+ הוספת שידוך חדש</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>החתן</th>
+            <th>הכלה</th>
+            <th>יצירת קשר</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="4" class="loading-row">טוען נתונים…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">קול תורה · לוח השמחות</footer>
+
+<!-- מודל הוספת שידוך -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close>✕</button>
+    <h2>הוספת שידוך חדש</h2>
+    <p class="sub">הפרטים יישלחו לאישור המנהל ויופיעו בלוח לאחר האישור</p>
+    <div id="formMsg"></div>
+    <form id="addForm">
+      <strong style="color: var(--wine);">פרטי החתן</strong>
+      <div class="field" style="margin-top:10px;">
+        <label>שם החתן *</label>
+        <input type="text" name="groomName" required>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>עיר *</label><input type="text" name="groomCity" required></div>
+        <div class="field"><label>ישיבה *</label><input type="text" name="groomYeshiva" required></div>
+      </div>
+
+      <hr class="section-divider">
+      <strong style="color: var(--wine);">פרטי הכלה</strong>
+      <div class="field" style="margin-top:10px;">
+        <label>שם הכלה *</label>
+        <input type="text" name="brideName" required>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>עיר *</label><input type="text" name="brideCity" required></div>
+        <div class="field"><label>סמינר *</label><input type="text" name="brideSeminar" required></div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="field">
+        <label>טלפון ליצירת קשר (רשות)</label>
+        <input type="tel" name="phone" placeholder="לשליחת ברכות">
+      </div>
+      <div class="field">
+        <label>תמונה (רשות)</label>
+        <input type="file" name="photo" accept="image/*">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">שליחה לאישור</button>
+    </form>
+  </div>
+</div>
+
+<!-- מודל הגדלת תמונה -->
+<div class="modal-overlay" id="imgModal">
+  <div class="modal-box" style="max-width:420px; text-align:center;">
+    <button class="modal-close" data-close>✕</button>
+    <img id="imgModalSrc" src="" alt="" style="width:100%; border-radius:12px;">
+  </div>
+</div>
+
+<!-- מודל דיווח למנהל -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close>✕</button>
+    <h2>דיווח למנהל</h2>
+    <p class="sub">טעות בפרטים? בקשה לעדכון? כתבו כאן</p>
+    <div id="reportMsg"></div>
+    <form id="reportForm">
+      <div class="field">
+        <label>לגבי מי (רשות)</label>
+        <input type="text" name="reference" placeholder="למשל: שם החתן">
+      </div>
+      <div class="field">
+        <label>מה תרצו לדווח? *</label>
+        <input type="text" name="message" required>
+      </div>
+      <button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center;">שליחה למנהל</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script>
+  const tableBody = document.getElementById('tableBody');
+  const countLabel = document.getElementById('countLabel');
+
+  async function loadEngaged() {
+    try {
+      const rows = await Api.list('engaged');
+      renderTable(rows);
+    } catch (err) {
+      tableBody.innerHTML = `<tr><td colspan="4" class="loading-row">שגיאה בטעינה: ${err.message}</td></tr>`;
+    }
+  }
+
+  function renderTable(rows) {
+    countLabel.textContent = rows.length ? `${rows.length} שידוכים` : '';
+    if (!rows.length) {
+      tableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="big">💍</span>עדיין אין שידוכים מאושרים בלוח</div></td></tr>`;
+      return;
+    }
+    tableBody.innerHTML = rows.map(r => {
+      const photo = r['תמונה']
+        ? `<img class="avatar" src="${r['תמונה']}" data-full="${r['תמונה']}" alt="">`
+        : `<div class="avatar-placeholder">💍</div>`;
+      const phone = r['טלפון'] ? `<a class="btn btn-secondary btn-sm" href="tel:${r['טלפון']}">📞 יצירת קשר</a>` : '—';
+      return `<tr>
+        <td>${photo}</td>
+        <td><strong>${esc(r['שם החתן'])}</strong><br><span style="color:var(--muted); font-size:13px;">${esc(r['עיר החתן'])} · ${esc(r['ישיבת החתן'])}</span></td>
+        <td><strong>${esc(r['שם הכלה'])}</strong><br><span style="color:var(--muted); font-size:13px;">${esc(r['עיר הכלה'])} · ${esc(r['סמינר הכלה'])}</span></td>
+        <td>${phone}</td>
+      </tr>`;
+    }).join('');
+
+    tableBody.querySelectorAll('img.avatar').forEach(img => {
+      img.addEventListener('click', () => {
+        document.getElementById('imgModalSrc').src = img.dataset.full;
+        document.getElementById('imgModal').classList.add('open');
+      });
+    });
+  }
+
+  function esc(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  // מודלים כלליים
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('open'));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  });
+
+  document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));
+  document.getElementById('reportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.add('open'));
+
+  // טופס הוספה
+  document.getElementById('addForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const msgBox = document.getElementById('formMsg');
+    const submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = 'שולח…';
+    try {
+      const fields = {
+        groomName: form.groomName.value.trim(),
+        groomCity: form.groomCity.value.trim(),
+        groomYeshiva: form.groomYeshiva.value.trim(),
+        brideName: form.brideName.value.trim(),
+        brideCity: form.brideCity.value.trim(),
+        brideSeminar: form.brideSeminar.value.trim(),
+        phone: form.phone.value.trim()
+      };
+      const photoFile = form.photo.files[0];
+      const photoBase64 = photoFile ? await compressImageToBase64(photoFile) : null;
+      await Api.submit('engaged', fields, photoBase64);
+      msgBox.innerHTML = `<div class="form-msg success">השידוך נשלח לאישור המנהל, תודה!</div>`;
+      form.reset();
+      setTimeout(() => document.getElementById('addModal').classList.remove('open'), 1400);
+    } catch (err) {
+      msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'שליחה לאישור';
+    }
+  });
+
+  // טופס דיווח
+  document.getElementById('reportForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const msgBox = document.getElementById('reportMsg');
+    const submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = 'שולח…';
+    try {
+      await Api._post({ action: 'report', reportType: 'engaged', reference: form.reference.value.trim(), message: form.message.value.trim() });
+      msgBox.innerHTML = `<div class="form-msg success">הדיווח נשלח למנהל, תודה!</div>`;
+      form.reset();
+      setTimeout(() => document.getElementById('reportModal').classList.remove('open'), 1400);
+    } catch (err) {
+      msgBox.innerHTML = `<div class="form-msg error">אירעה שגיאה, נסו שוב</div>`;
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'שליחה למנהל';
+    }
+  });
+
+  loadEngaged();
+</script>
+</body>
+</html>

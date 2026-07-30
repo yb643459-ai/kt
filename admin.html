@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ניהול | קול תורה</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="eyebrow">ישיבת קול תורה</div>
+  <h1>🔑 פאנל ניהול</h1>
+  <p>אישור ודחיית שידוכים וחתונות שנשלחו לאתר</p>
+</header>
+
+<main class="page">
+  <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
+
+  <div class="card-panel" id="loginPanel">
+    <h2 style="margin-bottom:14px;">כניסה</h2>
+    <div id="loginMsg"></div>
+    <div class="field">
+      <label>סיסמת מנהל</label>
+      <input type="password" id="passwordInput" placeholder="הזינו סיסמה">
+    </div>
+    <button class="btn btn-primary" id="loginBtn">כניסה</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div class="card-panel" style="margin-bottom:20px;">
+      <div class="toolbar">
+        <h2>שידוכים ממתינים (מאורסים)</h2>
+        <button class="btn btn-ghost btn-sm" id="refreshBtn">🔄 רענון</button>
+      </div>
+      <div id="engagedPending"></div>
+    </div>
+
+    <div class="card-panel">
+      <h2 style="margin-bottom:14px;">חתונות ממתינות</h2>
+      <div id="weddingsPending"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">קול תורה · פאנל ניהול · על כל שליחה חדשה נשלחת גם התראה למייל המנהל</footer>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script>
+  let password = '';
+
+  document.getElementById('loginBtn').addEventListener('click', login);
+  document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+  async function login() {
+    const pw = document.getElementById('passwordInput').value;
+    const msg = document.getElementById('loginMsg');
+    if (!pw) return;
+    msg.innerHTML = '';
+    try {
+      const data = await Api.getPending(pw);
+      password = pw;
+      document.getElementById('loginPanel').style.display = 'none';
+      document.getElementById('adminPanel').style.display = '';
+      renderPending(data);
+    } catch (err) {
+      msg.innerHTML = `<div class="form-msg error">${err.message}</div>`;
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', async () => {
+    const data = await Api.getPending(password);
+    renderPending(data);
+  });
+
+  function renderPending(data) {
+    renderList('engagedPending', data.engaged, 'engaged');
+    renderList('weddingsPending', data.weddings, 'weddings');
+  }
+
+  function renderList(elId, rows, type) {
+    const el = document.getElementById(elId);
+    if (!rows || !rows.length) {
+      el.innerHTML = `<div class="empty-state"><span class="big">✅</span>אין פריטים ממתינים</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(r => {
+      const details = type === 'engaged'
+        ? `${esc(r['שם החתן'])} (${esc(r['עיר החתן'])}, ${esc(r['ישיבת החתן'])}) &nbsp;|&nbsp; ${esc(r['שם הכלה'])} (${esc(r['עיר הכלה'])}, ${esc(r['סמינר הכלה'])})`
+        : `${esc(r['שם החתן'])} · ${esc(r['מקום לימודים'])} · ${esc(r['אולם'])} · ${esc(r['תאריך החתונה'])}`;
+      const photo = r['תמונה'] ? `<img class="avatar" src="${r['תמונה']}" alt="">` : `<div class="avatar-placeholder">📄</div>`;
+      return `<div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--parchment-2);">
+          ${photo}
+          <div style="flex:1;">${details}${r['טלפון'] ? `<br><span style="color:var(--muted); font-size:13px;">📞 ${esc(r['טלפון'])}</span>` : ''}</div>
+          <button class="btn btn-primary btn-sm" data-action="approve" data-type="${type}" data-id="${r['ID']}">אישור</button>
+          <button class="btn btn-danger btn-sm" data-action="reject" data-type="${type}" data-id="${r['ID']}">דחייה</button>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          if (btn.dataset.action === 'approve') await Api.approve(btn.dataset.type, btn.dataset.id, password);
+          else await Api.reject(btn.dataset.type, btn.dataset.id, password);
+          const data = await Api.getPending(password);
+          renderPending(data);
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function esc(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+</script>
+</body>
+</html>
