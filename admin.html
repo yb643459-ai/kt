@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ניהול | קול תורה</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,7 +12,7 @@
 <header class="site-header">
   <div class="eyebrow">ישיבת קול תורה</div>
   <h1>🔑 פאנל ניהול</h1>
-  <p>אישור ודחיית שידוכים וחתונות שנשלחו לאתר</p>
+  <p>אישור, עריכה ודחייה של שידוכים וחתונות שנשלחו לאתר</p>
 </header>
 
 <main class="page">
@@ -36,19 +37,101 @@
       <div id="engagedPending"></div>
     </div>
 
-    <div class="card-panel">
+    <div class="card-panel" style="margin-bottom:20px;">
       <h2 style="margin-bottom:14px;">חתונות ממתינות</h2>
       <div id="weddingsPending"></div>
+    </div>
+
+    <div class="card-panel" style="margin-bottom:20px;">
+      <h2 style="margin-bottom:14px;">דיווחים</h2>
+      <div id="reportsPending"></div>
+    </div>
+
+    <div class="card-panel" style="margin-bottom:20px;">
+      <div class="toolbar">
+        <h2>מאורסים מפורסמים</h2>
+        <span style="color:var(--muted); font-size:13px;">מחיקה כאן מסירה מהלוח החי</span>
+      </div>
+      <div id="engagedApprovedList"></div>
+    </div>
+
+    <div class="card-panel">
+      <div class="toolbar">
+        <h2>חתונות מפורסמות</h2>
+        <span style="color:var(--muted); font-size:13px;">מחיקה כאן מסירה מהלוח החי</span>
+      </div>
+      <div id="weddingsApprovedList"></div>
     </div>
   </div>
 </main>
 
 <footer class="site-footer">קול תורה · פאנל ניהול · על כל שליחה חדשה נשלחת גם התראה למייל המנהל</footer>
 
+<!-- מודל עריכת פריט ממתין -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close>✕</button>
+    <h2>עריכת פריט לפני אישור</h2>
+    <p class="sub">ניתן לתקן את הפרטים לפני שהם יאושרו ויעלו ללוח</p>
+    <div id="editMsg"></div>
+    <form id="editForm">
+      <div id="editFieldsEngaged" style="display:none;">
+        <strong style="color: var(--wine);">פרטי החתן</strong>
+        <div class="field" style="margin-top:10px;">
+          <label>שם החתן</label>
+          <input type="text" name="groomName">
+        </div>
+        <div class="field-row">
+          <div class="field"><label>עיר</label><input type="text" name="groomCity"></div>
+          <div class="field"><label>ישיבה</label><input type="text" name="groomYeshiva"></div>
+        </div>
+        <hr class="section-divider">
+        <strong style="color: var(--wine);">פרטי הכלה</strong>
+        <div class="field" style="margin-top:10px;">
+          <label>שם הכלה</label>
+          <input type="text" name="brideName">
+        </div>
+        <div class="field-row">
+          <div class="field"><label>עיר</label><input type="text" name="brideCity"></div>
+          <div class="field"><label>סמינר</label><input type="text" name="brideSeminar"></div>
+        </div>
+        <hr class="section-divider">
+      </div>
+
+      <div id="editFieldsWeddings" style="display:none;">
+        <div class="field">
+          <label>שם החתן</label>
+          <input type="text" name="groomName2">
+        </div>
+        <div class="field-row">
+          <div class="field"><label>מקום לימודים</label><input type="text" name="placeOfStudy"></div>
+          <div class="field"><label>אולם</label><input type="text" name="hall"></div>
+        </div>
+        <div class="field">
+          <label>תאריך החתונה</label>
+          <input type="date" name="weddingDate">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>טלפון (רשות)</label>
+        <input type="tel" name="phone">
+      </div>
+      <div class="field">
+        <label>תמונה חדשה (רשות - השארה ריקה שומרת את התמונה הקיימת)</label>
+        <input type="file" name="photo" accept="image/*">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">שמירת שינויים</button>
+    </form>
+  </div>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script>
   let password = '';
+  let latestPendingRows = { engaged: [], weddings: [] };
+  let editingContext = null; // { type, id, existingPhoto }
 
   document.getElementById('loginBtn').addEventListener('click', login);
   document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
@@ -75,8 +158,45 @@
   });
 
   function renderPending(data) {
+    latestPendingRows.engaged = data.engaged || [];
+    latestPendingRows.weddings = data.weddings || [];
     renderList('engagedPending', data.engaged, 'engaged');
     renderList('weddingsPending', data.weddings, 'weddings');
+    renderReports(data.reports);
+    renderApprovedList('engagedApprovedList', data.approvedEngaged, 'engaged');
+    renderApprovedList('weddingsApprovedList', data.approvedWeddings, 'weddings');
+  }
+
+  function renderReports(rows) {
+    const el = document.getElementById('reportsPending');
+    if (!rows || !rows.length) {
+      el.innerHTML = `<div class="empty-state"><span class="big">✅</span>אין דיווחים חדשים</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(r => {
+      const typeLabel = r['סוג'] === 'engaged' ? 'מאורסים' : r['סוג'] === 'weddings' ? 'חתונות' : esc(r['סוג']);
+      return `<div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--parchment-2);">
+          <div style="flex:1;">
+            <span style="color:var(--muted); font-size:13px;">${typeLabel}${r['לגבי'] ? ` · ${esc(r['לגבי'])}` : ''}</span>
+            <br>${esc(r['תוכן'])}
+          </div>
+          <button class="btn btn-primary btn-sm" data-report-id="${r['ID']}">טופל</button>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('button[data-report-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          await Api.resolveReport(btn.dataset.reportId, password);
+          const data = await Api.getPending(password);
+          renderPending(data);
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
   }
 
   function renderList(elId, rows, type) {
@@ -93,6 +213,7 @@
       return `<div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--parchment-2);">
           ${photo}
           <div style="flex:1;">${details}${r['טלפון'] ? `<br><span style="color:var(--muted); font-size:13px;">📞 ${esc(r['טלפון'])}</span>` : ''}</div>
+          <button class="btn btn-ghost btn-sm" data-action="edit" data-type="${type}" data-id="${r['ID']}">✏️ עריכה</button>
           <button class="btn btn-primary btn-sm" data-action="approve" data-type="${type}" data-id="${r['ID']}">אישור</button>
           <button class="btn btn-danger btn-sm" data-action="reject" data-type="${type}" data-id="${r['ID']}">דחייה</button>
         </div>`;
@@ -100,6 +221,10 @@
 
     el.querySelectorAll('button[data-action]').forEach(btn => {
       btn.addEventListener('click', async () => {
+        if (btn.dataset.action === 'edit') {
+          openEditModal(btn.dataset.type, btn.dataset.id);
+          return;
+        }
         btn.disabled = true;
         try {
           if (btn.dataset.action === 'approve') await Api.approve(btn.dataset.type, btn.dataset.id, password);
@@ -113,6 +238,118 @@
       });
     });
   }
+
+  function renderApprovedList(elId, rows, type) {
+    const el = document.getElementById(elId);
+    if (!rows || !rows.length) {
+      el.innerHTML = `<div class="empty-state"><span class="big">✅</span>אין פריטים מפורסמים</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(r => {
+      const details = type === 'engaged'
+        ? `${esc(r['שם החתן'])} &nbsp;|&nbsp; ${esc(r['שם הכלה'])}`
+        : `${esc(r['שם החתן'])} · ${esc(r['אולם'])} · ${esc(r['תאריך החתונה'])}`;
+      const photo = r['תמונה'] ? `<img class="avatar" src="${r['תמונה']}" alt="">` : `<div class="avatar-placeholder">📄</div>`;
+      return `<div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--parchment-2);">
+          ${photo}
+          <div style="flex:1;">${details}</div>
+          <button class="btn btn-danger btn-sm" data-approved-id="${r['ID']}" data-type="${type}">מחיקה מהלוח</button>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('button[data-approved-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('למחוק פריט זה סופית מהלוח הפומבי?')) return;
+        btn.disabled = true;
+        try {
+          await Api.deleteApproved(btn.dataset.type, btn.dataset.approvedId, password);
+          const data = await Api.getPending(password);
+          renderPending(data);
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function openEditModal(type, id) {
+    const rows = latestPendingRows[type] || [];
+    const row = rows.find(r => r['ID'] === id);
+    if (!row) return;
+    editingContext = { type, id, existingPhoto: row['תמונה'] || '' };
+
+    const form = document.getElementById('editForm');
+    form.reset();
+    document.getElementById('editMsg').innerHTML = '';
+    document.getElementById('editFieldsEngaged').style.display = type === 'engaged' ? '' : 'none';
+    document.getElementById('editFieldsWeddings').style.display = type === 'weddings' ? '' : 'none';
+
+    if (type === 'engaged') {
+      form.groomName.value = row['שם החתן'] || '';
+      form.groomCity.value = row['עיר החתן'] || '';
+      form.groomYeshiva.value = row['ישיבת החתן'] || '';
+      form.brideName.value = row['שם הכלה'] || '';
+      form.brideCity.value = row['עיר הכלה'] || '';
+      form.brideSeminar.value = row['סמינר הכלה'] || '';
+    } else {
+      form.groomName2.value = row['שם החתן'] || '';
+      form.placeOfStudy.value = row['מקום לימודים'] || '';
+      form.hall.value = row['אולם'] || '';
+      const d = row['תאריך החתונה'] ? new Date(row['תאריך החתונה']) : null;
+      form.weddingDate.value = d && !isNaN(d) ? d.toISOString().slice(0, 10) : '';
+    }
+    form.phone.value = row['טלפון'] || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!editingContext) return;
+    const form = e.target;
+    const msgBox = document.getElementById('editMsg');
+    const submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = 'שומר…';
+    try {
+      const fields = editingContext.type === 'engaged'
+        ? {
+            groomName: form.groomName.value.trim(),
+            groomCity: form.groomCity.value.trim(),
+            groomYeshiva: form.groomYeshiva.value.trim(),
+            brideName: form.brideName.value.trim(),
+            brideCity: form.brideCity.value.trim(),
+            brideSeminar: form.brideSeminar.value.trim(),
+            phone: form.phone.value.trim(),
+            existingPhoto: editingContext.existingPhoto
+          }
+        : {
+            groomName: form.groomName2.value.trim(),
+            placeOfStudy: form.placeOfStudy.value.trim(),
+            hall: form.hall.value.trim(),
+            weddingDate: form.weddingDate.value,
+            phone: form.phone.value.trim(),
+            existingPhoto: editingContext.existingPhoto
+          };
+      const photoFile = form.photo.files[0];
+      const photoBase64 = photoFile ? await compressImageToBase64(photoFile) : null;
+      await Api.update(editingContext.type, editingContext.id, fields, password, photoBase64);
+      msgBox.innerHTML = `<div class="form-msg success">נשמר בהצלחה</div>`;
+      const data = await Api.getPending(password);
+      renderPending(data);
+      setTimeout(() => document.getElementById('editModal').classList.remove('open'), 900);
+    } catch (err) {
+      msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'שמירת שינויים';
+    }
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('open'));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  });
 
   function esc(v) {
     if (v === undefined || v === null) return '';
