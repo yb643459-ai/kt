@@ -1,0 +1,393 @@
+/* ============================================================
+   קול תורה — לוח שמחות — עיצוב חדש (v2)
+   בשימוש ב: index.html, engaged.html, weddings.html
+   (admin.html ממשיך להשתמש ב-css/style.css המקורי, ללא שינוי)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@700;800&display=swap');
+
+:root {
+  --teal: #1a5653;
+  --teal-dark: #123f3c;
+  --teal-soft: #e7f0ef;
+  --ink: #0f172a;
+  --ink-soft: #1e293b;
+  --muted: #64748b;
+  --muted-soft: #94a3b8;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --success: #1f5f3f;
+  --success-soft: #e9f3ec;
+  --danger: #b3261e;
+  --danger-soft: #fbeceb;
+  --radius-lg: 16px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-family: 'Assistant', sans-serif;
+  direction: rtl;
+}
+
+body { min-height: 100vh; }
+
+h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+
+a { color: inherit; }
+
+img { max-width: 100%; display: block; }
+
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+button { font-family: 'Assistant', sans-serif; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-header {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--teal);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.search-wrap { flex: 1; max-width: 360px; }
+.search-wrap input {
+  width: 100%;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-family: 'Assistant', sans-serif;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--ink-soft);
+}
+.search-wrap input:focus { border-color: var(--teal); outline: none; background: var(--surface); }
+
+.header-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+/* ---------- כפתורים ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 22px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity .15s ease, background .15s ease, transform .1s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--teal); color: #fff; }
+.btn-primary:hover { opacity: .9; }
+.btn-outline { background: transparent; color: var(--teal); border-color: var(--border); }
+.btn-outline:hover { background: var(--teal-soft); }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* ---------- דף הבית ---------- */
+.welcome-section { text-align: center; margin: 64px auto 48px; padding: 0 20px; animation: fadeIn .4s ease; }
+.welcome-eyebrow { color: var(--teal); font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+.welcome-title { font-size: clamp(34px, 6vw, 56px); font-weight: 800; color: var(--ink); margin-bottom: 14px; }
+.welcome-subtitle { color: var(--muted); font-size: 19px; }
+
+.cards-container {
+  display: flex;
+  gap: 26px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+}
+@media (max-width: 640px) { .cards-container { flex-direction: column; } }
+
+.main-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 42px 22px;
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.main-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border); }
+
+.badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  background: var(--teal-soft);
+  color: var(--teal-dark);
+  padding: 7px 11px;
+  border-radius: 50%;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.card-icon { font-size: 46px; margin-bottom: 18px; }
+.card-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: var(--ink); }
+.card-desc { color: var(--muted); font-size: 16px; margin: 0; }
+
+.footer-text {
+  text-align: center;
+  margin: 60px auto 40px;
+  color: var(--muted);
+  font-size: 15px;
+  padding: 0 20px;
+}
+.footer-link { display: inline-block; margin-top: 10px; color: var(--teal); font-weight: 700; text-decoration: none; }
+.footer-link:hover { text-decoration: underline; }
+
+/* ---------- מבנה עמוד פנימי ---------- */
+.page-inner { max-width: 980px; margin: 0 auto; padding: 28px 18px 64px; animation: fadeIn .35s ease; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 16px;
+}
+.back-link:hover { text-decoration: underline; }
+
+.list-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 30px;
+  box-shadow: var(--shadow-sm);
+}
+@media (max-width: 640px) { .list-box { padding: 20px 16px; } }
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+.toolbar.between { justify-content: space-between; align-items: center; }
+
+.count-label { color: var(--muted); font-weight: 700; font-size: 14px; }
+
+/* ---------- Empty state ---------- */
+.empty-state { text-align: center; padding: 54px 16px 34px; color: var(--muted-soft); }
+.empty-icon { font-size: 38px; margin-bottom: 14px; display: block; }
+.empty-text { font-size: 17px; }
+
+.loading-row { text-align: center; padding: 40px 16px; color: var(--muted); }
+
+/* ---------- מאורסים: כותרות ושורות ---------- */
+.engaged-headers {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 1fr;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 14px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.engaged-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.engaged-row:last-child { border-bottom: none; }
+
+.person-cell { display: flex; align-items: center; gap: 12px; }
+.person-name { font-weight: 700; color: var(--ink); }
+.person-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--border); cursor: zoom-in; background: var(--bg); flex-shrink: 0;
+}
+.avatar-placeholder {
+  width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--border-soft); color: var(--muted); font-size: 17px; border: 1px solid var(--border); flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .engaged-headers { display: none; }
+  .engaged-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 0; }
+}
+
+/* ---------- חתונות: תגי מעבר תצוגה ---------- */
+.view-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 4px; }
+.toggle-btn {
+  background: transparent; border: none; padding: 8px 18px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 700; color: var(--muted); cursor: pointer;
+  transition: all .15s ease; display: flex; align-items: center; gap: 6px;
+}
+.toggle-btn.active { background: var(--ink); color: #fff; }
+
+.weddings-headers {
+  display: grid;
+  grid-template-columns: 2fr 1.3fr 1.4fr 0.9fr;
+  gap: 14px;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 14px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.weddings-row {
+  display: grid;
+  grid-template-columns: 2fr 1.3fr 1.4fr 0.9fr;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--ink-soft);
+}
+.weddings-row:last-child { border-bottom: none; }
+
+@media (max-width: 700px) {
+  .weddings-headers { display: none; }
+  .weddings-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 0; }
+}
+
+/* ---------- לוח שנה ---------- */
+.calendar-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.calendar-head h3 { font-size: 18px; font-weight: 800; color: var(--ink); }
+.calendar-nav { display: flex; gap: 8px; }
+.icon-btn {
+  border: 1.5px solid var(--border); background: var(--surface); color: var(--ink);
+  border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 15px; font-weight: 700;
+  transition: border-color .15s ease, background .15s ease;
+}
+.icon-btn:hover { border-color: var(--teal); background: var(--teal-soft); color: var(--teal-dark); }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal-dow { text-align: center; font-size: 11.5px; color: var(--muted); font-weight: 700; padding-bottom: 8px; }
+.cal-cell {
+  min-height: 76px; border-radius: 10px; background: var(--bg); border: 1px solid transparent;
+  padding: 6px; font-size: 11px; position: relative;
+}
+.cal-cell.empty { background: transparent; }
+.cal-cell.today { border-color: var(--teal); background: var(--teal-soft); }
+.cal-cell .day-num { font-weight: 800; font-size: 12.5px; color: var(--ink); }
+.cal-cell .event-chip {
+  display: block; background: var(--teal); color: #fff; border-radius: 6px;
+  padding: 2px 5px; margin-top: 3px; font-size: 10.5px; line-height: 1.35; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---------- חלונות צפים (Modals) ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+  display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); width: 100%; max-width: 540px; border-radius: var(--radius-lg);
+  padding: 36px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  animation: fadeIn .25s ease;
+}
+.modal-box.narrow { max-width: 420px; text-align: center; }
+
+.modal-close {
+  position: absolute; top: 18px; left: 18px; background: none; border: none; font-size: 22px;
+  color: var(--muted-soft); cursor: pointer;
+}
+.modal-close:hover { color: var(--ink); }
+
+.modal-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; color: var(--ink); }
+.modal-sub { color: var(--muted); font-size: 14.5px; margin-bottom: 26px; }
+
+/* ---------- טפסים ---------- */
+.form-section { margin-bottom: 22px; }
+.form-section h3 {
+  font-size: 17px; font-weight: 700; color: var(--ink-soft);
+  border-bottom: 1px solid var(--border-soft); padding-bottom: 6px; margin-bottom: 16px; display: inline-block;
+}
+.field { margin-bottom: 18px; }
+.field label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 7px; color: var(--ink-soft); }
+.field input, .field select {
+  width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+  font-family: 'Assistant', sans-serif; font-size: 15px; background: var(--surface); color: var(--ink);
+}
+.field input:focus, .field select:focus { border-color: var(--teal); outline: none; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+.field-hint { font-size: 12.5px; color: var(--muted-soft); margin-top: 6px; }
+
+/* בחירת תאריך עברי (יום / חודש / שנה) */
+.hebrew-date-picker { display: flex; gap: 12px; }
+.hebrew-date-picker select {
+  flex: 1; padding: 12px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'Assistant', sans-serif; font-size: 15px; font-weight: 600; background: var(--surface);
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat; background-position: left 10px center; background-size: 16px;
+  padding-left: 30px;
+}
+.hebrew-date-picker select:disabled { opacity: .5; cursor: not-allowed; }
+
+.section-divider { border: none; border-top: 1px solid var(--border-soft); margin: 20px 0; }
+
+.form-msg { padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13.5px; margin-bottom: 18px; }
+.form-msg.success { background: var(--success-soft); color: var(--success); }
+.form-msg.error { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center; color: var(--muted); font-size: 13px; padding: 30px 16px 46px;
+}
+.site-footer a { color: var(--teal); text-decoration: none; font-weight: 700; }
+.site-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .site-header { padding: 14px 16px; flex-wrap: wrap; }
+  .search-wrap { order: 3; max-width: none; flex-basis: 100%; }
+  .header-actions .btn span.txt { display: none; }
+}

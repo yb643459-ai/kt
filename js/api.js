@@ -37,6 +37,12 @@ const Api = {
     return res;
   },
 
+  async resolveReport(id, password) {
+    const res = await this._post({ action: 'resolveReport', id, password });
+    if (!res.ok) throw new Error(res.error || 'שגיאה בטיפול בדיווח');
+    return res;
+  },
+
   async _post(payload) {
     // שולחים כ-text/plain כדי להימנע מ-CORS preflight ש-Apps Script לא תומך בו
     const res = await fetch(CONFIG.APPS_SCRIPT_URL, {

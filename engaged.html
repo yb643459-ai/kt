@@ -4,43 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מאורסים | קול תורה</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 
 <header class="site-header">
-  <div class="eyebrow">ישיבת קול תורה</div>
-  <h1>💍 מאורסים</h1>
-  <p>השידוכים האחרונים של בני הישיבה, בס"ד</p>
+  <a class="logo-header" href="index.html">ישיבת קול תורה</a>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="חיפוש חתן, כלה, עיר…">
+  </div>
 </header>
 
-<main class="page">
-  <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
+<main class="page-inner">
+  <a class="back-link" href="index.html">→ חזרה ללוח הראשי</a>
 
-  <div class="card-panel">
-    <div class="toolbar">
-      <div id="countLabel" style="color: var(--muted); font-weight: 700;"></div>
+  <div class="list-box">
+    <div class="toolbar between">
+      <div class="count-label" id="countLabel"></div>
       <div style="display:flex; gap:10px;">
-        <button class="btn btn-ghost btn-sm" id="reportBtn">🖊 דיווח למנהל</button>
+        <button class="btn btn-outline btn-sm" id="reportBtn">🖊 דיווח למנהל</button>
         <button class="btn btn-primary" id="addBtn">+ הוספת שידוך חדש</button>
       </div>
     </div>
 
-    <div class="table-wrap">
-      <table class="data-table" id="dataTable">
-        <thead>
-          <tr>
-            <th></th>
-            <th>החתן</th>
-            <th>הכלה</th>
-            <th>יצירת קשר</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="4" class="loading-row">טוען נתונים…</td></tr>
-        </tbody>
-      </table>
+    <div class="engaged-headers">
+      <div>החתן</div>
+      <div>הכלה</div>
+      <div>יצירת קשר</div>
+    </div>
+
+    <div id="rowsContainer">
+      <div class="loading-row">טוען נתונים…</div>
     </div>
   </div>
 </main>
@@ -51,32 +45,34 @@
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
     <button class="modal-close" data-close>✕</button>
-    <h2>הוספת שידוך חדש</h2>
-    <p class="sub">הפרטים יישלחו לאישור המנהל ויופיעו בלוח לאחר האישור</p>
+    <h2 class="modal-title">הוספת שידוך חדש</h2>
+    <p class="modal-sub">הפרטים יישלחו לאישור המנהל ויופיעו בלוח לאחר האישור</p>
     <div id="formMsg"></div>
     <form id="addForm">
-      <strong style="color: var(--wine);">פרטי החתן</strong>
-      <div class="field" style="margin-top:10px;">
-        <label>שם החתן *</label>
-        <input type="text" name="groomName" required>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>עיר *</label><input type="text" name="groomCity" required></div>
-        <div class="field"><label>ישיבה *</label><input type="text" name="groomYeshiva" required></div>
-      </div>
-
-      <hr class="section-divider">
-      <strong style="color: var(--wine);">פרטי הכלה</strong>
-      <div class="field" style="margin-top:10px;">
-        <label>שם הכלה *</label>
-        <input type="text" name="brideName" required>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>עיר *</label><input type="text" name="brideCity" required></div>
-        <div class="field"><label>סמינר *</label><input type="text" name="brideSeminar" required></div>
+      <div class="form-section">
+        <h3>פרטי החתן</h3>
+        <div class="field">
+          <label>שם החתן *</label>
+          <input type="text" name="groomName" required>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>עיר *</label><input type="text" name="groomCity" required></div>
+          <div class="field"><label>ישיבה *</label><input type="text" name="groomYeshiva" required></div>
+        </div>
       </div>
 
-      <hr class="section-divider">
+      <div class="form-section">
+        <h3>פרטי הכלה</h3>
+        <div class="field">
+          <label>שם הכלה *</label>
+          <input type="text" name="brideName" required>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>עיר *</label><input type="text" name="brideCity" required></div>
+          <div class="field"><label>סמינר *</label><input type="text" name="brideSeminar" required></div>
+        </div>
+      </div>
+
       <div class="field">
         <label>טלפון ליצירת קשר (רשות)</label>
         <input type="tel" name="phone" placeholder="לשליחת ברכות">
@@ -85,14 +81,14 @@
         <label>תמונה (רשות)</label>
         <input type="file" name="photo" accept="image/*">
       </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">שליחה לאישור</button>
+      <button type="submit" class="btn btn-primary btn-block">שליחה לאישור</button>
     </form>
   </div>
 </div>
 
 <!-- מודל הגדלת תמונה -->
 <div class="modal-overlay" id="imgModal">
-  <div class="modal-box" style="max-width:420px; text-align:center;">
+  <div class="modal-box narrow">
     <button class="modal-close" data-close>✕</button>
     <img id="imgModalSrc" src="" alt="" style="width:100%; border-radius:12px;">
   </div>
@@ -102,8 +98,8 @@
 <div class="modal-overlay" id="reportModal">
   <div class="modal-box">
     <button class="modal-close" data-close>✕</button>
-    <h2>דיווח למנהל</h2>
-    <p class="sub">טעות בפרטים? בקשה לעדכון? כתבו כאן</p>
+    <h2 class="modal-title">דיווח למנהל</h2>
+    <p class="modal-sub">טעות בפרטים? בקשה לעדכון? כתבו כאן</p>
     <div id="reportMsg"></div>
     <form id="reportForm">
       <div class="field">
@@ -114,7 +110,7 @@
         <label>מה תרצו לדווח? *</label>
         <input type="text" name="message" required>
       </div>
-      <button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center;">שליחה למנהל</button>
+      <button type="submit" class="btn btn-primary btn-block">שליחה למנהל</button>
     </form>
   </div>
 </div>
@@ -122,44 +118,63 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script>
-  const tableBody = document.getElementById('tableBody');
+  const rowsContainer = document.getElementById('rowsContainer');
   const countLabel = document.getElementById('countLabel');
+  let allRows = [];
 
   async function loadEngaged() {
     try {
-      const rows = await Api.list('engaged');
-      renderTable(rows);
+      allRows = await Api.list('engaged');
+      renderRows(allRows);
     } catch (err) {
-      tableBody.innerHTML = `<tr><td colspan="4" class="loading-row">שגיאה בטעינה: ${err.message}</td></tr>`;
+      rowsContainer.innerHTML = `<div class="loading-row">שגיאה בטעינה: ${err.message}</div>`;
     }
   }
 
-  function renderTable(rows) {
-    countLabel.textContent = rows.length ? `${rows.length} שידוכים` : '';
+  function renderRows(rows) {
+    countLabel.textContent = allRows.length ? `${allRows.length} שידוכים` : '';
     if (!rows.length) {
-      tableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="big">💍</span>עדיין אין שידוכים מאושרים בלוח</div></td></tr>`;
+      rowsContainer.innerHTML = `<div class="empty-state">
+          <span class="empty-icon">💍</span>
+          <div class="empty-text">${allRows.length ? 'לא נמצאו תוצאות התואמות לחיפוש' : 'עדיין אין שידוכים מאושרים בלוח'}</div>
+        </div>`;
       return;
     }
-    tableBody.innerHTML = rows.map(r => {
+    rowsContainer.innerHTML = rows.map(r => {
       const photo = r['תמונה']
         ? `<img class="avatar" src="${r['תמונה']}" data-full="${r['תמונה']}" alt="">`
         : `<div class="avatar-placeholder">💍</div>`;
-      const phone = r['טלפון'] ? `<a class="btn btn-secondary btn-sm" href="tel:${r['טלפון']}">📞 יצירת קשר</a>` : '—';
-      return `<tr>
-        <td>${photo}</td>
-        <td><strong>${esc(r['שם החתן'])}</strong><br><span style="color:var(--muted); font-size:13px;">${esc(r['עיר החתן'])} · ${esc(r['ישיבת החתן'])}</span></td>
-        <td><strong>${esc(r['שם הכלה'])}</strong><br><span style="color:var(--muted); font-size:13px;">${esc(r['עיר הכלה'])} · ${esc(r['סמינר הכלה'])}</span></td>
-        <td>${phone}</td>
-      </tr>`;
+      const phone = r['טלפון'] ? `<a class="btn btn-outline btn-sm" href="tel:${r['טלפון']}">📞 יצירת קשר</a>` : '—';
+      return `<div class="engaged-row">
+        <div class="person-cell">
+          ${photo}
+          <div><div class="person-name">${esc(r['שם החתן'])}</div><div class="person-sub">${esc(r['עיר החתן'])} · ${esc(r['ישיבת החתן'])}</div></div>
+        </div>
+        <div class="person-cell">
+          <div><div class="person-name">${esc(r['שם הכלה'])}</div><div class="person-sub">${esc(r['עיר הכלה'])} · ${esc(r['סמינר הכלה'])}</div></div>
+        </div>
+        <div>${phone}</div>
+      </div>`;
     }).join('');
 
-    tableBody.querySelectorAll('img.avatar').forEach(img => {
+    rowsContainer.querySelectorAll('img.avatar').forEach(img => {
       img.addEventListener('click', () => {
         document.getElementById('imgModalSrc').src = img.dataset.full;
         document.getElementById('imgModal').classList.add('open');
       });
     });
   }
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) return renderRows(allRows);
+    const filtered = allRows.filter(r => {
+      const haystack = [r['שם החתן'], r['עיר החתן'], r['ישיבת החתן'], r['שם הכלה'], r['עיר הכלה'], r['סמינר הכלה']]
+        .map(v => (v || '').toString().toLowerCase()).join(' ');
+      return haystack.includes(q);
+    });
+    renderRows(filtered);
+  });
 
   function esc(v) {
     if (v === undefined || v === null) return '';
@@ -172,6 +187,9 @@
   });
   document.querySelectorAll('.modal-overlay').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov => ov.classList.remove('open'));
   });
 
   document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));

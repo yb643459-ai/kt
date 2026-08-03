@@ -4,46 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>קול תורה | לוח השמחות</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 
 <header class="site-header">
-  <div class="eyebrow">ישיבת קול תורה</div>
-  <h1>לוח השמחות</h1>
-  <p>מאורסים וחתונות של בני הישיבה — במקום אחד</p>
+  <a class="logo-header" href="index.html">ישיבת קול תורה</a>
 </header>
 
-<main class="page">
-  <div class="gates">
-    <a class="gate" href="engaged.html">
-      <span class="seal">מזל<br>טוב</span>
-      <span class="gate-icon">💍</span>
-      <h2>מאורסים</h2>
-      <p>השידוכים האחרונים של בני הישיבה</p>
+<main>
+  <div class="welcome-section">
+    <div class="welcome-eyebrow">ישיבת קול תורה</div>
+    <h1 class="welcome-title">לוח השמחות</h1>
+    <p class="welcome-subtitle">מאורסים וחתונות של בני הישיבה — במקום אחד</p>
+  </div>
+
+  <div class="cards-container">
+    <a class="main-card" href="engaged.html">
+      <span class="badge">מזל<br>טוב</span>
+      <span class="card-icon">💍</span>
+      <h2 class="card-title">מאורסים</h2>
+      <p class="card-desc">השידוכים האחרונים של בני הישיבה</p>
     </a>
-    <a class="gate" href="weddings.html">
-      <span class="seal">מזל<br>טוב</span>
-      <span class="gate-icon">💒</span>
-      <h2>חתונות</h2>
-      <p>טבלה ולוח שנה עברי לחתונות הקרובות</p>
+    <a class="main-card" href="weddings.html">
+      <span class="badge">מזל<br>טוב</span>
+      <span class="card-icon">💒</span>
+      <h2 class="card-title">חתונות</h2>
+      <p class="card-desc">טבלה ולוח שנה עברי לחתונות הקרובות</p>
     </a>
   </div>
-</main>
 
-<footer class="site-footer">
-  יש לכם עדכון או שידוך חדש להוסיף? היכנסו ללוח המתאים ולחצו על "הוספה".
-  <br>
-  <a href="admin.html">כניסת מנהל</a>
-</footer>
+  <div class="footer-text">
+    יש לכם עדכון או שידוך חדש להוסיף? היכנסו ללוח המתאים ולחצו על "הוספה".
+    <br>
+    <a class="footer-link" href="admin.html">כניסת מנהל</a>
+  </div>
+</main>
 
 <!-- מודל הוראות פתיחה -->
 <div class="modal-overlay" id="introModal">
   <div class="modal-box">
-    <h2>ברוכים הבאים ללוח השמחות 🎉</h2>
-    <p class="sub">כמה דברים לפני שמתחילים</p>
-    <ul style="padding-right: 20px; line-height: 1.9; font-size: 15px;">
+    <h2 class="modal-title">ברוכים הבאים ללוח השמחות 🎉</h2>
+    <p class="modal-sub">כמה דברים לפני שמתחילים</p>
+    <ul style="padding-right: 20px; line-height: 1.9; font-size: 15px; color: var(--ink-soft);">
       <li>כל שידוך או חתונה שנוספים דרך הטופס נשלחים ל<strong>אישור מנהל</strong> ומופיעים בלוח רק לאחר האישור.</li>
       <li>חתונה נשארת בלוח לאורך כל יום האירוע, ויורדת אוטומטית מהיום שאחריו.</li>
       <li>נמצאה טעות, או שיש לכם משוב? אפשר לפנות למנהל הלוח ישירות.</li>
