@@ -4,49 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>קול תורה | לוח השמחות</title>
-<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="home-page">
+
+<canvas id="constellation"></canvas>
 
 <header class="site-header">
-  <a class="logo-header" href="index.html">ישיבת קול תורה</a>
+  <div class="eyebrow">ישיבת קול תורה</div>
+  <h1>לוח ה<span class="gold-word">שמחות</span></h1>
+  <p>מאורסים וחתונות של בני הישיבה — במקום אחד</p>
+  <div class="live-counter" id="liveCounter">
+    <div class="stat"><span class="num" id="engagedCount">–</span><span class="lbl">שידוכים</span></div>
+    <div class="stat"><span class="num" id="weddingCount">–</span><span class="lbl">חתונות קרובות</span></div>
+  </div>
 </header>
 
-<main>
-  <div class="welcome-section">
-    <div class="welcome-eyebrow">ישיבת קול תורה</div>
-    <h1 class="welcome-title">לוח השמחות</h1>
-    <p class="welcome-subtitle">מאורסים וחתונות של בני הישיבה — במקום אחד</p>
-  </div>
-
-  <div class="cards-container">
-    <a class="main-card" href="engaged.html">
-      <span class="badge">מזל<br>טוב</span>
-      <span class="card-icon">💍</span>
-      <h2 class="card-title">מאורסים</h2>
-      <p class="card-desc">השידוכים האחרונים של בני הישיבה</p>
+<main class="page">
+  <div class="gates">
+    <a class="gate" href="engaged.html">
+      <span class="envelope-flap"></span>
+      <span class="seal">מזל<br>טוב</span>
+      <span class="gate-icon">💍</span>
+      <h2>מאורסים</h2>
+      <p>השידוכים האחרונים של בני הישיבה</p>
     </a>
-    <a class="main-card" href="weddings.html">
-      <span class="badge">מזל<br>טוב</span>
-      <span class="card-icon">💒</span>
-      <h2 class="card-title">חתונות</h2>
-      <p class="card-desc">טבלה ולוח שנה עברי לחתונות הקרובות</p>
+    <a class="gate" href="weddings.html">
+      <span class="envelope-flap"></span>
+      <span class="seal">מזל<br>טוב</span>
+      <span class="gate-icon">💒</span>
+      <h2>חתונות</h2>
+      <p>טבלה ולוח שנה עברי לחתונות הקרובות</p>
     </a>
-  </div>
-
-  <div class="footer-text">
-    יש לכם עדכון או שידוך חדש להוסיף? היכנסו ללוח המתאים ולחצו על "הוספה".
-    <br>
-    <a class="footer-link" href="admin.html">כניסת מנהל</a>
   </div>
 </main>
+
+<footer class="site-footer">
+  יש לכם עדכון או שידוך חדש להוסיף? היכנסו ללוח המתאים ולחצו על "הוספה".
+  <br>
+  <a href="admin.html">כניסת מנהל</a>
+</footer>
 
 <!-- מודל הוראות פתיחה -->
 <div class="modal-overlay" id="introModal">
   <div class="modal-box">
-    <h2 class="modal-title">ברוכים הבאים ללוח השמחות 🎉</h2>
-    <p class="modal-sub">כמה דברים לפני שמתחילים</p>
-    <ul style="padding-right: 20px; line-height: 1.9; font-size: 15px; color: var(--ink-soft);">
+    <h2>ברוכים הבאים ללוח השמחות 🎉</h2>
+    <p class="sub">כמה דברים לפני שמתחילים</p>
+    <ul style="padding-right: 20px; line-height: 1.9; font-size: 15px;">
       <li>כל שידוך או חתונה שנוספים דרך הטופס נשלחים ל<strong>אישור מנהל</strong> ומופיעים בלוח רק לאחר האישור.</li>
       <li>חתונה נשארת בלוח לאורך כל יום האירוע, ויורדת אוטומטית מהיום שאחריו.</li>
       <li>נמצאה טעות, או שיש לכם משוב? אפשר לפנות למנהל הלוח ישירות.</li>
@@ -69,6 +73,92 @@
   }
   document.getElementById('introConfirm').addEventListener('click', closeIntro);
   document.getElementById('introClose').addEventListener('click', closeIntro);
+</script>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/hebrew-calendar.js"></script>
+<script>
+  // ---- מונה חי: כמה שידוכים / חתונות קרובות מוצגים בלוח ----
+  async function loadLiveCounts() {
+    const engagedEl = document.getElementById('engagedCount');
+    const weddingEl = document.getElementById('weddingCount');
+    try {
+      const [engaged, weddings] = await Promise.all([
+        Api.list('engaged'),
+        Api.list('weddings')
+      ]);
+      const upcomingWeddings = weddings.filter(r =>
+        r['תאריך החתונה'] && HebrewCal.isTodayOrFuture(new Date(r['תאריך החתונה']))
+      );
+      engagedEl.textContent = engaged.length;
+      weddingEl.textContent = upcomingWeddings.length;
+    } catch (err) {
+      // אם ה-backend לא זמין, פשוט מסתירים את המונה בשקט
+      document.getElementById('liveCounter').style.display = 'none';
+    }
+  }
+  loadLiveCounts();
+</script>
+
+<script>
+  // ---- רקע קונסטלציה עדינה (מזל = כוכבים) ----
+  (function () {
+    const canvas = document.getElementById('constellation');
+    if (!canvas) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = canvas.getContext('2d');
+    let w, h, points;
+    const DENSITY = 16000; // פיקסלים לכל נקודה — ככל שגדול יותר, פחות נקודות
+    const LINK_DIST = 130;
+    const COLOR = 'rgba(31, 95, 82,'; // --accent, עם אלפא משתנה
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      const count = Math.max(24, Math.min(70, Math.round((w * h) / DENSITY)));
+      points = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: (Math.random() - 0.5) * 0.15,
+        r: Math.random() * 1.2 + 0.6
+      }));
+    }
+
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of points) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+      }
+      for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          const dx = points[i].x - points[j].x, dy = points[i].y - points[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DIST) {
+            ctx.strokeStyle = COLOR + (0.07 * (1 - dist / LINK_DIST)) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.lineTo(points[j].x, points[j].y);
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = COLOR + '0.35)';
+        ctx.beginPath();
+        ctx.arc(points[i].x, points[i].y, points[i].r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(step);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(step);
+  })();
 </script>
 
 </body>
