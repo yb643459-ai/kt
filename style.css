@@ -225,7 +225,7 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
   border: 1px solid var(--border); cursor: zoom-in; background: var(--bg);
 }
-.avatar-placeholder {
+.avatar- {
   width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   background: var(--bg); color: var(--muted); font-size: 17px; border: 1px solid var(--border);
 }
@@ -312,20 +312,20 @@ footer.site-footer a:hover { text-decoration: underline; }
    מונה חי
    ============================================================ */
 
-body.home-page { position: relative; overflow-x: hidden; }
+body.home-page {
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse 900px 500px at 50% 0%, rgba(184,134,47,0.10), transparent 65%),
+    var(--bg);
+}
 
 #constellation {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
-}
-
-body.home-page .site-header,
-body.home-page .page,
-body.home-page .site-footer {
-  position: relative;
-  z-index: 1;
+  background: transparent;
 }
 
 /* --- כותרת: כניסה עדינה + מילה בזהב זוהר --- */
