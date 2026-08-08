@@ -5,15 +5,14 @@
 
 ## מבנה הקבצים
 ```
-index.html          דף הבית - בחירת לוח (עיצוב חדש)
-engaged.html         לוח המאורסים (עיצוב חדש)
-weddings.html         לוח החתונות (עיצוב חדש, טבלה + לוח שנה עברי)
-admin.html            פאנל ניהול (סיסמה) — עיצוב קלאסי, ללא שינוי
-css/site.css           עיצוב העמודים הציבוריים (index/engaged/weddings)
-css/style.css          עיצוב פאנל הניהול (admin.html) בלבד
+index.html          דף הבית - בחירת לוח
+engaged.html         לוח המאורסים
+weddings.html         לוח החתונות (טבלה + לוח שנה עברי)
+admin.html            פאנל ניהול (סיסמה)
+css/style.css         עיצוב
 js/config.js          כתובת ה-Backend (לערוך!)
 js/api.js              תקשורת עם ה-Backend
-js/hebrew-calendar.js  המרת תאריכים עברי↔לועזי (מבוסס Intl של הדפדפן), כולל מנוע חיפוש הפוך לבורר התאריך העברי בטופס הוספת חתונה
+js/hebrew-calendar.js  המרת תאריכים לעברי (מבוסס Intl של הדפדפן)
 apps-script/Code.gs    קוד ה-Backend להדבקה ב-Google Apps Script
 ```
 
