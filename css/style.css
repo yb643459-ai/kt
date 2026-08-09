@@ -12,14 +12,14 @@
 :root {
   --bg: #fafafa;
   --surface: #ffffff;
-  --ink: #17181c;
-  --ink-soft: #33353b;
-  --muted: #75787f;
-  --border: #e7e7ea;
-  --border-strong: #d7d8dc;
-  --accent: #1f5f52;
-  --accent-soft: #e6efec;
-  --accent-dark: #163f37;
+  --ink: #2a2118;
+  --ink-soft: #4a3f30;
+  --muted: #7a6f5e;
+  --border: #e9e4d9;
+  --border-strong: #d8d0c0;
+  --accent: #3d4a2e;
+  --accent-soft: #eef1e6;
+  --accent-dark: #2c3620;
   --gold: #b8862f;
   --danger: #b3261e;
   --danger-soft: #fbeceb;
