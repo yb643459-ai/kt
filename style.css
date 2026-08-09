@@ -7,7 +7,7 @@
    גרסה קלאסית שמורה ב-style.classic.css.bak
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700&display=swap');
 
 :root {
   --bg: #fafafa;
@@ -58,6 +58,29 @@ a { color: inherit; }
   outline-offset: 2px;
 }
 
+/* ---------- ניווט עליון קבוע ---------- */
+.site-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-nav .brand {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  color: var(--gold);
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.site-nav .brand:hover {
+  color: #96701f;
+}
+
 /* ---------- מבנה כללי ---------- */
 .site-header {
   text-align: center;
@@ -67,22 +90,6 @@ a { color: inherit; }
   background: var(--surface);
   position: relative;
   overflow: hidden;
-}
-
-.site-header .eyebrow {
-  display: inline-block;
-  font-size: 12.5px;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-  font-weight: 700;
-  text-transform: none;
-  text-decoration: none;
-  margin-bottom: 10px;
-  transition: color 0.15s ease;
-}
-.site-header .eyebrow:hover {
-  color: var(--accent-dark);
-  text-decoration: underline;
 }
 
 .site-header h1 {
@@ -343,10 +350,6 @@ body.home-page .site-header {
 }
 
 /* --- כותרת: כניסה עדינה + זהב זוהר אחיד לכל הכותרת --- */
-body.home-page .site-header .eyebrow {
-  opacity: 0;
-  animation: homeFadeUp .7s ease .05s forwards;
-}
 body.home-page .site-header h1.gold-word {
   background: linear-gradient(90deg, var(--gold) 0%, #f0d48a 35%, var(--gold) 60%, #e2b354 100%);
   background-size: 220% auto;
@@ -355,12 +358,12 @@ body.home-page .site-header h1.gold-word {
   color: transparent;
   opacity: 0;
   animation:
-    homeFadeUp .8s ease .18s forwards,
+    homeFadeUp .8s ease .1s forwards,
     goldShimmer 4.5s ease-in-out 1s infinite;
 }
 body.home-page .site-header p {
   opacity: 0;
-  animation: homeFadeUp .8s ease .32s forwards;
+  animation: homeFadeUp .8s ease .24s forwards;
 }
 
 @keyframes homeFadeUp {
@@ -375,7 +378,6 @@ body.home-page .site-header p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.home-page .site-header .eyebrow,
   body.home-page .site-header h1.gold-word,
   body.home-page .site-header p { animation: none; opacity: 1; }
 }
