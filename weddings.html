@@ -42,12 +42,13 @@
               <th>שם החתן</th>
               <th>מקום לימודים</th>
               <th>אולם</th>
+              <th>עיר האולם</th>
               <th>תאריך עברי</th>
               <th>יצירת קשר</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr><td colspan="6" class="loading-row">טוען נתונים…</td></tr>
+            <tr><td colspan="7" class="loading-row">טוען נתונים…</td></tr>
           </tbody>
         </table>
       </div>
@@ -81,9 +82,13 @@
         <label>שם החתן *</label>
         <input type="text" name="groomName" required>
       </div>
+      <div class="field">
+        <label>מקום לימודים (רשות)</label>
+        <input type="text" name="placeOfStudy">
+      </div>
       <div class="field-row">
-        <div class="field"><label>מקום לימודים *</label><input type="text" name="placeOfStudy" required></div>
         <div class="field"><label>אולם *</label><input type="text" name="hall" required></div>
+        <div class="field"><label>עיר האולם (רשות)</label><input type="text" name="hallCity"></div>
       </div>
       <div class="field">
         <label>תאריך החתונה *</label>
@@ -147,13 +152,13 @@
       renderTable(allWeddings);
       renderCalendar();
     } catch (err) {
-      tableBody.innerHTML = `<tr><td colspan="6" class="loading-row">שגיאה בטעינה: ${err.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" class="loading-row">שגיאה בטעינה: ${err.message}</td></tr>`;
     }
   }
 
   function renderTable(rows) {
     if (!rows.length) {
-      tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span class="big">💒</span>אין חתונות קרובות בלוח כרגע</div></td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="big">💒</span>אין חתונות קרובות בלוח כרגע</div></td></tr>`;
       return;
     }
     tableBody.innerHTML = rows.map(r => {
@@ -167,6 +172,7 @@
         <td><strong>${esc(r['שם החתן'])}</strong></td>
         <td>${esc(r['מקום לימודים'])}</td>
         <td>${esc(r['אולם'])}</td>
+        <td>${esc(r['עיר האולם'])}</td>
         <td>${hebDate}</td>
         <td>${phone}</td>
       </tr>`;
@@ -251,6 +257,7 @@
         groomName: form.groomName.value.trim(),
         placeOfStudy: form.placeOfStudy.value.trim(),
         hall: form.hall.value.trim(),
+        hallCity: form.hallCity.value.trim(),
         weddingDate: form.weddingDate.value,
         phone: form.phone.value.trim()
       };
