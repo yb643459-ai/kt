@@ -370,6 +370,26 @@ body.home-page .site-header {
   height: 100%;
 }
 
+body.home-page .site-header {
+  padding: 56px 20px 40px;
+}
+body.home-page .site-header .eyebrow {
+  font-size: 15px;
+}
+body.home-page .site-header h1 {
+  font-size: clamp(36px, 6.5vw, 56px);
+}
+body.home-page .site-header p {
+  font-size: 17.5px;
+  margin-top: 14px;
+}
+body.home-page .live-counter .stat .num {
+  font-size: 30px;
+}
+body.home-page .live-counter .stat .lbl {
+  font-size: 13px;
+}
+
 /* --- כותרת: כניסה עדינה + זהב-ברונזה אחיד לכל הכותרת --- */
 body.home-page .site-header .eyebrow {
   opacity: 0;
