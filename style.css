@@ -65,15 +65,24 @@ a { color: inherit; }
   color: var(--ink);
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+  position: relative;
+  overflow: hidden;
 }
 
 .site-header .eyebrow {
+  display: inline-block;
   font-size: 12.5px;
   letter-spacing: 0.12em;
   color: var(--accent);
   font-weight: 700;
   text-transform: none;
+  text-decoration: none;
   margin-bottom: 10px;
+  transition: color 0.15s ease;
+}
+.site-header .eyebrow:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
 }
 
 .site-header h1 {
@@ -315,27 +324,39 @@ footer.site-footer a:hover { text-decoration: underline; }
 body.home-page {
   position: relative;
   overflow-x: hidden;
+}
+
+body.home-page .site-header {
   background:
-    radial-gradient(ellipse 900px 500px at 50% 0%, rgba(184,134,47,0.10), transparent 65%),
-    var(--bg);
+    radial-gradient(ellipse 700px 380px at 50% 0%, rgba(184,134,47,0.10), transparent 65%),
+    var(--surface);
 }
 
 #constellation {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: transparent;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-/* --- כותרת: כניסה עדינה + מילה בזהב זוהר --- */
+/* --- כותרת: כניסה עדינה + זהב זוהר אחיד לכל הכותרת --- */
 body.home-page .site-header .eyebrow {
   opacity: 0;
   animation: homeFadeUp .7s ease .05s forwards;
 }
-body.home-page .site-header h1 {
+body.home-page .site-header h1.gold-word {
+  background: linear-gradient(90deg, var(--gold) 0%, #f0d48a 35%, var(--gold) 60%, #e2b354 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   opacity: 0;
-  animation: homeFadeUp .8s ease .18s forwards;
+  animation:
+    homeFadeUp .8s ease .18s forwards,
+    goldShimmer 4.5s ease-in-out 1s infinite;
 }
 body.home-page .site-header p {
   opacity: 0;
@@ -347,15 +368,6 @@ body.home-page .site-header p {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.gold-word {
-  background: linear-gradient(90deg, var(--gold) 0%, #f0d48a 35%, var(--gold) 60%, #e2b354 100%);
-  background-size: 220% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: goldShimmer 4.5s ease-in-out infinite;
-}
-
 @keyframes goldShimmer {
   0%   { background-position: 0% center; }
   50%  { background-position: 100% center; }
@@ -364,9 +376,8 @@ body.home-page .site-header p {
 
 @media (prefers-reduced-motion: reduce) {
   body.home-page .site-header .eyebrow,
-  body.home-page .site-header h1,
+  body.home-page .site-header h1.gold-word,
   body.home-page .site-header p { animation: none; opacity: 1; }
-  .gold-word { animation: none; background-position: 0% center; }
 }
 
 /* --- מונה חי --- */
@@ -397,41 +408,37 @@ body.home-page .site-header p {
   margin-top: 2px;
 }
 
-/* --- שערים: מעטפה נפתחת --- */
-body.home-page .gates { perspective: 1400px; }
-
+/* --- שערים: מסגרת + זוהר זהב בהובר --- */
 body.home-page .gate {
-  padding-top: 62px;
+  border: 1.5px solid var(--border);
   opacity: 0;
   animation: homeFadeUp .7s ease forwards;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 body.home-page .gate:nth-child(1) { animation-delay: .6s; }
 body.home-page .gate:nth-child(2) { animation-delay: .72s; }
 
-.envelope-flap {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 62px;
-  background: linear-gradient(135deg, var(--accent-soft), #fff 70%);
-  border-bottom: 1px solid var(--border);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top center;
-  transform-style: preserve-3d;
-  transition: transform .55s cubic-bezier(.22,.85,.3,1.1), background .3s ease;
-  z-index: 2;
-}
-.gate:hover .envelope-flap {
-  transform: rotateX(180deg);
-  background: linear-gradient(135deg, #fff, var(--accent-soft) 70%);
+body.home-page .gate:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,47,0.12), 0 10px 28px rgba(184,134,47,0.14);
 }
 
-.gate .gate-icon {
+.gate .icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
   position: relative;
   z-index: 1;
-  transition: transform .45s cubic-bezier(.22,.85,.3,1.1) .12s;
 }
-.gate:hover .gate-icon {
-  transform: scale(1.18) translateY(-2px);
+.gate .icon-box svg {
+  width: 36px;
+  height: 36px;
+  transition: transform 0.3s cubic-bezier(.22,.85,.3,1.1);
+}
+.gate:hover .icon-box svg {
+  transform: scale(1.12);
 }
 
 .gate .seal {
@@ -441,9 +448,10 @@ body.home-page .gate:nth-child(2) { animation-delay: .72s; }
   transform: translateY(-2px) scale(1.05);
 }
 
+
 @media (prefers-reduced-motion: reduce) {
   body.home-page .gate { animation: none; opacity: 1; }
   .live-counter { animation: none; opacity: 1; }
-  .envelope-flap, .gate .gate-icon, .gate .seal { transition: none; }
-  .gate:hover .envelope-flap { transform: none; }
+  .gate .icon-box svg, .gate .seal { transition: none; }
+  body.home-page .gate:hover { transform: none; }
 }
