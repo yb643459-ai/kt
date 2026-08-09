@@ -69,13 +69,26 @@ a { color: inherit; }
 }
 
 .site-nav .brand {
+  position: relative;
+  display: inline-block;
   font-family: 'Frank Ruhl Libre', serif;
   font-weight: 700;
-  font-size: 19px;
+  font-size: 23px;
   letter-spacing: 0.01em;
   color: var(--gold);
   text-decoration: none;
+  padding-bottom: 8px;
   transition: color 0.15s ease, opacity 0.15s ease;
+}
+.site-nav .brand::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), #e2b354 60%, transparent);
 }
 .site-nav .brand:hover {
   color: #96701f;
@@ -349,9 +362,9 @@ body.home-page .site-header {
   height: 100%;
 }
 
-/* --- כותרת: כניסה עדינה + זהב זוהר אחיד לכל הכותרת --- */
+/* --- כותרת: כניסה עדינה + זהב-ברונזה אחיד לכל הכותרת --- */
 body.home-page .site-header h1.gold-word {
-  background: linear-gradient(90deg, var(--gold) 0%, #f0d48a 35%, var(--gold) 60%, #e2b354 100%);
+  background: linear-gradient(135deg, #ecd393 0%, var(--gold) 45%, #8a6420 100%);
   background-size: 220% auto;
   -webkit-background-clip: text;
   background-clip: text;
