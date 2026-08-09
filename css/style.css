@@ -61,7 +61,7 @@ a { color: inherit; }
 /* ---------- ניווט עליון קבוע ---------- */
 .site-nav {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   padding: 16px 24px;
   background: var(--surface);
@@ -103,6 +103,14 @@ a { color: inherit; }
   background: var(--surface);
   position: relative;
   overflow: hidden;
+}
+
+.site-header .eyebrow {
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .site-header h1 {
@@ -363,6 +371,10 @@ body.home-page .site-header {
 }
 
 /* --- כותרת: כניסה עדינה + זהב-ברונזה אחיד לכל הכותרת --- */
+body.home-page .site-header .eyebrow {
+  opacity: 0;
+  animation: homeFadeUp .7s ease .0s forwards;
+}
 body.home-page .site-header h1.gold-word {
   background: linear-gradient(135deg, #ecd393 0%, var(--gold) 45%, #8a6420 100%);
   background-size: 220% auto;
@@ -391,6 +403,7 @@ body.home-page .site-header p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body.home-page .site-header .eyebrow,
   body.home-page .site-header h1.gold-word,
   body.home-page .site-header p { animation: none; opacity: 1; }
 }
