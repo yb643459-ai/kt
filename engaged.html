@@ -71,10 +71,19 @@
           <input type="checkbox" id="engDateToggle" style="width:auto;">
           ציון תאריך האירוסין (רשות)
         </label>
-        <div class="field-row-3" id="engDateFields" style="display:none; margin-top:10px;">
-          <select id="engDay"></select>
-          <select id="engMonth"></select>
-          <select id="engYear"></select>
+        <div class="hdate-picker" id="engDateFields" style="display:none; margin-top:10px;">
+          <div class="hdate-col">
+            <span class="hdate-label">יום</span>
+            <select id="engDay" class="hdate-select"></select>
+          </div>
+          <div class="hdate-col">
+            <span class="hdate-label">חודש</span>
+            <select id="engMonth" class="hdate-select"></select>
+          </div>
+          <div class="hdate-col">
+            <span class="hdate-label">שנה</span>
+            <select id="engYear" class="hdate-select"></select>
+          </div>
         </div>
       </div>
 
