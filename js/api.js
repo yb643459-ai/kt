@@ -3,8 +3,10 @@
 // ============================================================
 const Api = {
   async list(type) {
-    const url = `${CONFIG.APPS_SCRIPT_URL}?action=list&type=${encodeURIComponent(type)}`;
-    const res = await fetch(url);
+    // מוסיפים פרמטר ייחודי (_=timestamp) כדי למנוע מהדפדפן/NetFree להחזיר
+    // תשובה ישנה מהקאש במקום לפנות מחדש לשרת
+    const url = `${CONFIG.APPS_SCRIPT_URL}?action=list&type=${encodeURIComponent(type)}&_=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'שגיאה בטעינת נתונים');
     return json.data;
@@ -18,8 +20,8 @@ const Api = {
   },
 
   async getPending(password) {
-    const url = `${CONFIG.APPS_SCRIPT_URL}?action=getPending&password=${encodeURIComponent(password)}`;
-    const res = await fetch(url);
+    const url = `${CONFIG.APPS_SCRIPT_URL}?action=getPending&password=${encodeURIComponent(password)}&_=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'שגיאה');
     return json;
