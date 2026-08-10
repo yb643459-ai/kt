@@ -64,7 +64,18 @@
       </div>
       <div class="field-row">
         <div class="field"><label>עיר *</label><input type="text" name="groomCity" required></div>
-        <div class="field"><label>ישיבה *</label><input type="text" name="groomYeshiva" required></div>
+        <div class="field"><label>ישיבה (רשות)</label><input type="text" name="groomYeshiva"></div>
+      </div>
+      <div class="field">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
+          <input type="checkbox" id="engDateToggle" style="width:auto;">
+          ציון תאריך האירוסין (רשות)
+        </label>
+        <div class="field-row-3" id="engDateFields" style="display:none; margin-top:10px;">
+          <select id="engDay"></select>
+          <select id="engMonth"></select>
+          <select id="engYear"></select>
+        </div>
       </div>
 
       <hr class="section-divider">
@@ -123,6 +134,7 @@
 
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/hebrew-calendar.js"></script>
 <script>
   const tableBody = document.getElementById('tableBody');
   const countLabel = document.getElementById('countLabel');
@@ -179,6 +191,16 @@
   document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));
   document.getElementById('reportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.add('open'));
 
+  // בורר תאריך האירוסין (עברי) - מוצג רק אם המשתמש בוחר לציין תאריך
+  const engDatePicker = HebrewCal.setupDatePicker(
+    document.getElementById('engDay'),
+    document.getElementById('engMonth'),
+    document.getElementById('engYear')
+  );
+  document.getElementById('engDateToggle').addEventListener('change', (e) => {
+    document.getElementById('engDateFields').style.display = e.target.checked ? '' : 'none';
+  });
+
   // טופס הוספה
   document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -194,6 +216,7 @@
         brideName: form.brideName.value.trim(),
         brideCity: form.brideCity.value.trim(),
         brideSeminar: form.brideSeminar.value.trim(),
+        engagementDate: document.getElementById('engDateToggle').checked ? engDatePicker.getISO() : '',
         phone: form.phone.value.trim()
       };
       const photoFile = form.photo.files[0];
@@ -201,6 +224,12 @@
       await Api.submit('engaged', fields, photoBase64);
       msgBox.innerHTML = `<div class="form-msg success">השידוך נשלח לאישור המנהל, תודה!</div>`;
       form.reset();
+      document.getElementById('engDateFields').style.display = 'none';
+      HebrewCal.setupDatePicker(
+        document.getElementById('engDay'),
+        document.getElementById('engMonth'),
+        document.getElementById('engYear')
+      );
       setTimeout(() => document.getElementById('addModal').classList.remove('open'), 1400);
     } catch (err) {
       msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;

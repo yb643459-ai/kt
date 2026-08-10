@@ -10,16 +10,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700&display=swap');
 
 :root {
-  --bg: #fafafa;
+  --bg: #fdfcf9;
   --surface: #ffffff;
-  --ink: #17181c;
-  --ink-soft: #33353b;
-  --muted: #75787f;
-  --border: #e7e7ea;
-  --border-strong: #d7d8dc;
-  --accent: #1f5f52;
-  --accent-soft: #e6efec;
-  --accent-dark: #163f37;
+  --ink: #2a2118;
+  --ink-soft: #4a3f30;
+  --muted: #7a6f5e;
+  --border: #e9e4d9;
+  --border-strong: #d8d0c0;
+  --accent: #7a6a1f;
+  --accent-soft: #f6f0da;
+  --accent-dark: #5c4f17;
   --gold: #b8862f;
   --danger: #b3261e;
   --danger-soft: #fbeceb;
@@ -61,7 +61,7 @@ a { color: inherit; }
 /* ---------- ניווט עליון קבוע ---------- */
 .site-nav {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   padding: 16px 24px;
   background: var(--surface);
@@ -103,6 +103,14 @@ a { color: inherit; }
   background: var(--surface);
   position: relative;
   overflow: hidden;
+}
+
+.site-header .eyebrow {
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .site-header h1 {
@@ -319,6 +327,9 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 .field input:focus, .field select:focus { border-color: var(--accent); outline: none; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 520px) { .field-row-3 { grid-template-columns: 1fr; } }
 .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
 
 .section-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
@@ -347,9 +358,18 @@ body.home-page {
 }
 
 body.home-page .site-header {
+  position: relative;
   background:
-    radial-gradient(ellipse 700px 380px at 50% 0%, rgba(184,134,47,0.10), transparent 65%),
+    radial-gradient(ellipse 900px 520px at 50% 0%, rgba(184,134,47,0.10), transparent 75%),
     var(--surface);
+}
+body.home-page .site-header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -80px;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(184,134,47,0.05), transparent);
+  pointer-events: none;
 }
 
 #constellation {
@@ -362,7 +382,31 @@ body.home-page .site-header {
   height: 100%;
 }
 
+body.home-page .site-header {
+  padding: 56px 20px 40px;
+}
+body.home-page .site-header .eyebrow {
+  font-size: 15px;
+}
+body.home-page .site-header h1 {
+  font-size: clamp(36px, 6.5vw, 56px);
+}
+body.home-page .site-header p {
+  font-size: 17.5px;
+  margin-top: 14px;
+}
+body.home-page .live-counter .stat .num {
+  font-size: 30px;
+}
+body.home-page .live-counter .stat .lbl {
+  font-size: 13px;
+}
+
 /* --- כותרת: כניסה עדינה + זהב-ברונזה אחיד לכל הכותרת --- */
+body.home-page .site-header .eyebrow {
+  opacity: 0;
+  animation: homeFadeUp .7s ease .0s forwards;
+}
 body.home-page .site-header h1.gold-word {
   background: linear-gradient(135deg, #ecd393 0%, var(--gold) 45%, #8a6420 100%);
   background-size: 220% auto;
@@ -391,6 +435,7 @@ body.home-page .site-header p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body.home-page .site-header .eyebrow,
   body.home-page .site-header h1.gold-word,
   body.home-page .site-header p { animation: none; opacity: 1; }
 }

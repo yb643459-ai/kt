@@ -55,6 +55,7 @@
 
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/hebrew-calendar.js"></script>
 <script>
   let password = '';
 
@@ -127,9 +128,10 @@
       return;
     }
     el.innerHTML = rows.map(r => {
+      const engDate = r['תאריך האירוסין'] ? ` &nbsp;|&nbsp; אירוסין: ${esc(HebrewCal.formatLong(new Date(r['תאריך האירוסין'])))}` : '';
       const details = type === 'engaged'
-        ? `${esc(r['שם החתן'])} (${esc(r['עיר החתן'])}, ${esc(r['ישיבת החתן'])}) &nbsp;|&nbsp; ${esc(r['שם הכלה'])} (${esc(r['עיר הכלה'])}, ${esc(r['סמינר הכלה'])})`
-        : `${esc(r['שם החתן'])} · ${esc(r['מקום לימודים'])} · ${esc(r['אולם'])}${r['עיר האולם'] ? ` (${esc(r['עיר האולם'])})` : ''} · ${esc(r['תאריך החתונה'])}`;
+        ? `${esc(r['שם החתן'])} (${esc(r['עיר החתן'])}${r['ישיבת החתן'] ? `, ${esc(r['ישיבת החתן'])}` : ''}) &nbsp;|&nbsp; ${esc(r['שם הכלה'])} (${esc(r['עיר הכלה'])}, ${esc(r['סמינר הכלה'])})${engDate}`
+        : `${esc(r['שם החתן'])} · ${esc(r['מקום לימודים'])} · ${esc(r['אולם'])}${r['עיר האולם'] ? ` (${esc(r['עיר האולם'])})` : ''} · ${HebrewCal.formatLong(new Date(r['תאריך החתונה']))}`;
       const photo = r['תמונה'] ? `<img class="avatar" src="${r['תמונה']}" alt="">` : `<div class="avatar-placeholder">📄</div>`;
       return `<div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--parchment-2);">
           ${photo}

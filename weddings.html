@@ -91,9 +91,12 @@
         <div class="field"><label>עיר האולם (רשות)</label><input type="text" name="hallCity"></div>
       </div>
       <div class="field">
-        <label>תאריך החתונה *</label>
-        <input type="date" name="weddingDate" required>
-        <div class="field-hint">התאריך יוצג בלוח כתאריך עברי באופן אוטומטי</div>
+        <label>תאריך החתונה (עברי) *</label>
+        <div class="field-row-3">
+          <select id="weddingDay" required></select>
+          <select id="weddingMonth" required></select>
+          <select id="weddingYear" required></select>
+        </div>
       </div>
       <div class="field">
         <label>טלפון (רשות)</label>
@@ -246,6 +249,13 @@
   document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));
   document.getElementById('reportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.add('open'));
 
+  // בורר תאריך החתונה (עברי) - ברירת המחדל היא היום העברי הנוכחי
+  const weddingDatePicker = HebrewCal.setupDatePicker(
+    document.getElementById('weddingDay'),
+    document.getElementById('weddingMonth'),
+    document.getElementById('weddingYear')
+  );
+
   document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -253,12 +263,18 @@
     const submitBtn = form.querySelector('button[type=submit]');
     submitBtn.disabled = true; submitBtn.textContent = 'שולח…';
     try {
+      const weddingDateISO = weddingDatePicker.getISO();
+      if (!weddingDateISO) {
+        msgBox.innerHTML = `<div class="form-msg error">התאריך שנבחר אינו תקין, אנא בדקו את הבחירה</div>`;
+        submitBtn.disabled = false; submitBtn.textContent = 'שליחה לאישור';
+        return;
+      }
       const fields = {
         groomName: form.groomName.value.trim(),
         placeOfStudy: form.placeOfStudy.value.trim(),
         hall: form.hall.value.trim(),
         hallCity: form.hallCity.value.trim(),
-        weddingDate: form.weddingDate.value,
+        weddingDate: weddingDateISO,
         phone: form.phone.value.trim()
       };
       const photoFile = form.photo.files[0];
@@ -266,6 +282,11 @@
       await Api.submit('weddings', fields, photoBase64);
       msgBox.innerHTML = `<div class="form-msg success">החתונה נשלחה לאישור המנהל, מזל טוב!</div>`;
       form.reset();
+      HebrewCal.setupDatePicker(
+        document.getElementById('weddingDay'),
+        document.getElementById('weddingMonth'),
+        document.getElementById('weddingYear')
+      );
       setTimeout(() => document.getElementById('addModal').classList.remove('open'), 1400);
     } catch (err) {
       msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;
