@@ -249,12 +249,20 @@
   document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));
   document.getElementById('reportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.add('open'));
 
+  // טוענים את הנתונים מייד, לפני אתחול הבורר - כך שגם אם הבורר ייכשל, הטבלה והלוח עדיין ייטענו
+  loadWeddings();
+
   // בורר תאריך החתונה (עברי) - ברירת המחדל היא היום העברי הנוכחי
-  const weddingDatePicker = HebrewCal.setupDatePicker(
-    document.getElementById('weddingDay'),
-    document.getElementById('weddingMonth'),
-    document.getElementById('weddingYear')
-  );
+  let weddingDatePicker = null;
+  try {
+    weddingDatePicker = HebrewCal.setupDatePicker(
+      document.getElementById('weddingDay'),
+      document.getElementById('weddingMonth'),
+      document.getElementById('weddingYear')
+    );
+  } catch (err) {
+    console.error('שגיאה באתחול בורר תאריך החתונה:', err);
+  }
 
   document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -263,7 +271,7 @@
     const submitBtn = form.querySelector('button[type=submit]');
     submitBtn.disabled = true; submitBtn.textContent = 'שולח…';
     try {
-      const weddingDateISO = weddingDatePicker.getISO();
+      const weddingDateISO = weddingDatePicker ? weddingDatePicker.getISO() : '';
       if (!weddingDateISO) {
         msgBox.innerHTML = `<div class="form-msg error">התאריך שנבחר אינו תקין, אנא בדקו את הבחירה</div>`;
         submitBtn.disabled = false; submitBtn.textContent = 'שליחה לאישור';
@@ -282,11 +290,15 @@
       await Api.submit('weddings', fields, photoBase64);
       msgBox.innerHTML = `<div class="form-msg success">החתונה נשלחה לאישור המנהל, מזל טוב!</div>`;
       form.reset();
-      HebrewCal.setupDatePicker(
-        document.getElementById('weddingDay'),
-        document.getElementById('weddingMonth'),
-        document.getElementById('weddingYear')
-      );
+      try {
+        weddingDatePicker = HebrewCal.setupDatePicker(
+          document.getElementById('weddingDay'),
+          document.getElementById('weddingMonth'),
+          document.getElementById('weddingYear')
+        );
+      } catch (err) {
+        console.error('שגיאה באתחול בורר תאריך החתונה:', err);
+      }
       setTimeout(() => document.getElementById('addModal').classList.remove('open'), 1400);
     } catch (err) {
       msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;
@@ -312,8 +324,6 @@
       submitBtn.disabled = false; submitBtn.textContent = 'שליחה למנהל';
     }
   });
-
-  loadWeddings();
 </script>
 </body>
 </html>

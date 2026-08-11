@@ -191,12 +191,20 @@
   document.getElementById('addBtn').addEventListener('click', () => document.getElementById('addModal').classList.add('open'));
   document.getElementById('reportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.add('open'));
 
+  // טוענים את הנתונים מייד, לפני אתחול הבורר - כך שגם אם הבורר ייכשל, הטבלה עדיין תיטען
+  loadEngaged();
+
   // בורר תאריך האירוסין (עברי) - מוצג רק אם המשתמש בוחר לציין תאריך
-  const engDatePicker = HebrewCal.setupDatePicker(
-    document.getElementById('engDay'),
-    document.getElementById('engMonth'),
-    document.getElementById('engYear')
-  );
+  let engDatePicker = null;
+  try {
+    engDatePicker = HebrewCal.setupDatePicker(
+      document.getElementById('engDay'),
+      document.getElementById('engMonth'),
+      document.getElementById('engYear')
+    );
+  } catch (err) {
+    console.error('שגיאה באתחול בורר תאריך האירוסין:', err);
+  }
   document.getElementById('engDateToggle').addEventListener('change', (e) => {
     document.getElementById('engDateFields').style.display = e.target.checked ? '' : 'none';
   });
@@ -216,7 +224,7 @@
         brideName: form.brideName.value.trim(),
         brideCity: form.brideCity.value.trim(),
         brideSeminar: form.brideSeminar.value.trim(),
-        engagementDate: document.getElementById('engDateToggle').checked ? engDatePicker.getISO() : '',
+        engagementDate: (document.getElementById('engDateToggle').checked && engDatePicker) ? engDatePicker.getISO() : '',
         phone: form.phone.value.trim()
       };
       const photoFile = form.photo.files[0];
@@ -225,11 +233,15 @@
       msgBox.innerHTML = `<div class="form-msg success">השידוך נשלח לאישור המנהל, תודה!</div>`;
       form.reset();
       document.getElementById('engDateFields').style.display = 'none';
-      HebrewCal.setupDatePicker(
-        document.getElementById('engDay'),
-        document.getElementById('engMonth'),
-        document.getElementById('engYear')
-      );
+      try {
+        engDatePicker = HebrewCal.setupDatePicker(
+          document.getElementById('engDay'),
+          document.getElementById('engMonth'),
+          document.getElementById('engYear')
+        );
+      } catch (err) {
+        console.error('שגיאה באתחול בורר תאריך האירוסין:', err);
+      }
       setTimeout(() => document.getElementById('addModal').classList.remove('open'), 1400);
     } catch (err) {
       msgBox.innerHTML = `<div class="form-msg error">${err.message}</div>`;
@@ -256,8 +268,6 @@
       submitBtn.disabled = false; submitBtn.textContent = 'שליחה למנהל';
     }
   });
-
-  loadEngaged();
 </script>
 </body>
 </html>
