@@ -338,7 +338,8 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   flex-wrap: nowrap;
   gap: 10px;
 }
-.hdate-select {
+.field select.hdate-select,
+select.hdate-select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
