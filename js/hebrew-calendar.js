@@ -186,10 +186,10 @@ const HebrewCal = {
   // מאתחל שלושה אלמנטי <select> (יום/חודש/שנה) כבורר תאריך עברי מלא בגימטריה,
   // עם ברירת מחדל להיום העברי הנוכחי, כולל טיפול בשנה מעוברת.
   // מחזיר אובייקט עם getISO() שמחזיר את התאריך הלועזי הנבחר כמחרוזת YYYY-MM-DD
-  setupDatePicker(dayEl, monthEl, yearEl) {
+  setupDatePicker(dayEl, monthEl, yearEl, yearsAhead = 9) {
     const todayParts = this.parts(new Date());
     const currentYear = todayParts.year;
-    const yearsRange = [currentYear, currentYear + 1, currentYear + 2];
+    const yearsRange = Array.from({ length: yearsAhead + 1 }, (_, i) => currentYear + i);
 
     yearEl.innerHTML = yearsRange
       .map(y => `<option value="${y}">${this.toGematria(y % 1000)}</option>`)
