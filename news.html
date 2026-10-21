@@ -3,143 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#fffbff">
+<meta name="theme-color" content="#fbf6ea" id="themeColor">
 <title>בשורות טובות | לוח השמחות</title>
+<script>
+  // החלת הערכה השמורה לפני הציור, כדי למנוע הבהוב
+  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('news_theme') || 'cream'); }
+  catch (e) { document.documentElement.setAttribute('data-theme', 'cream'); }
+</script>
 <style>
-/* ===== Material Design 3 - טוקנים (ערכת צבעים מבוססת זהב-זית, בהירה + כהה) ===== */
-:root {
-  --md-primary: #6d5e0f;           --md-on-primary: #ffffff;
-  --md-primary-container: #f8e287; --md-on-primary-container: #211b00;
-  --md-secondary-container: #eee2bc; --md-on-secondary-container: #221b04;
-  --md-tertiary-container: #c7ecca;  --md-on-tertiary-container: #00210e;
-  --md-error: #ba1a1a;             --md-error-container: #ffdad6; --md-on-error-container: #410002;
-  --md-surface: #fffbff;           --md-on-surface: #1d1b16; --md-on-surface-variant: #4b4739;
-  --md-surface-container-low: #f8f3e8;
-  --md-surface-container: #f2ede2;
-  --md-surface-container-high: #ece7dc;
-  --md-outline: #7c7767;           --md-outline-variant: #cdc6b4;
-  --md-inverse-surface: #333029;   --md-inverse-on-surface: #f6f0e7;
-  --md-shadow: rgba(0,0,0,.18);
-  --md-font: Roboto, "Heebo", "Assistant", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+/* ===== ערכות צבעים: צבע בולט אחד בלבד בכל ערכה ===== */
+:root, :root[data-theme="cream"] {
+  --bg:#fbf6ea; --surface:#fffdf7; --ink:#2a2118; --muted:#6f6454;
+  --accent:#7a6a1f; --on-accent:#ffffff; --accent-soft:#efe4bd; --line:#e4d9b9;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --md-primary: #dbc66e;          --md-on-primary: #3a3000;
-    --md-primary-container: #534600; --md-on-primary-container: #f8e287;
-    --md-secondary-container: #4d4629; --md-on-secondary-container: #eee2bc;
-    --md-tertiary-container: #1a4b2c;  --md-on-tertiary-container: #c7ecca;
-    --md-error: #ffb4ab;            --md-error-container: #93000a; --md-on-error-container: #ffdad6;
-    --md-surface: #15130c;          --md-on-surface: #e8e2d4; --md-on-surface-variant: #cdc6b4;
-    --md-surface-container-low: #1d1b14;
-    --md-surface-container: #211f18;
-    --md-surface-container-high: #2c2a22;
-    --md-outline: #969080;          --md-outline-variant: #4b4739;
-    --md-inverse-surface: #e8e2d4;  --md-inverse-on-surface: #333029;
-    --md-shadow: rgba(0,0,0,.5);
-  }
+:root[data-theme="blue"] {
+  --bg:#f4f7fb; --surface:#ffffff; --ink:#10223b; --muted:#52647c;
+  --accent:#17407a; --on-accent:#ffffff; --accent-soft:#dce7f5; --line:#d5dfec;
 }
+:root[data-theme="gray"] {
+  --bg:#f5f5f5; --surface:#ffffff; --ink:#1c1c1c; --muted:#666666;
+  --accent:#0f766e; --on-accent:#ffffff; --accent-soft:#d6eeeb; --line:#e0e0e0;
+}
+:root { --font: Roboto, "Heebo", "Assistant", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--md-surface); color: var(--md-on-surface);
-  font-family: var(--md-font); font-size: 14px; line-height: 20px; letter-spacing: .25px;
-}
-svg.i { width: 24px; height: 24px; fill: currentColor; flex: none; }
-svg.i.sm { width: 18px; height: 18px; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-size:14px; line-height:20px; }
+svg.i { width:24px; height:24px; fill:currentColor; flex:none; }
+svg.i.sm { width:18px; height:18px; }
 
-/* ===== State layer משותף (hover / focus / pressed) ===== */
-.state { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-.state::before { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity .15s; pointer-events: none; }
-.state:hover::before { opacity: .08; }
-.state:focus-visible::before { opacity: .12; }
-.state:active::before { opacity: .12; }
-.state:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+/* state layer */
+.state { position:relative; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+.state::before { content:""; position:absolute; inset:0; background:currentColor; opacity:0; transition:opacity .15s; pointer-events:none; }
+.state:hover::before { opacity:.08; }
+.state:focus-visible::before, .state:active::before { opacity:.14; }
+.state:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-/* ===== Top app bar ===== */
-.app-bar {
-  position: sticky; top: 0; z-index: 10; height: 64px; padding: 0 4px;
-  display: flex; align-items: center; gap: 4px;
-  background: var(--md-surface); color: var(--md-on-surface);
-}
-.app-bar h1 { flex: 1; margin: 0; font-size: 22px; line-height: 28px; font-weight: 400; letter-spacing: 0; }
-.icon-btn {
-  width: 48px; height: 48px; border: 0; border-radius: 50%; background: none; color: var(--md-on-surface-variant);
-  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;
-}
+/* ===== פס עליון ===== */
+.app-bar { position:sticky; top:0; z-index:20; height:64px; padding:0 4px; display:flex; align-items:center; gap:4px; background:var(--surface); }
+.app-bar h1 { flex:1; margin:0; font-size:22px; line-height:28px; font-weight:500; }
+.icon-btn { width:48px; height:48px; border:0; border-radius:50%; background:none; color:var(--muted); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none; }
+.progress { height:3px; background:var(--accent-soft); overflow:hidden; visibility:hidden; position:sticky; top:64px; z-index:21; }
+.progress.on { visibility:visible; }
+.progress::after { content:""; display:block; height:100%; width:40%; background:var(--accent); animation:ind 1.3s infinite ease-in-out; }
+@keyframes ind { 0%{transform:translateX(120%)} 100%{transform:translateX(-260%)} }
 
-/* ===== Linear progress ===== */
-.progress { height: 4px; background: var(--md-secondary-container); overflow: hidden; visibility: hidden; }
-.progress.on { visibility: visible; }
-.progress::after { content: ""; display: block; height: 100%; width: 40%; background: var(--md-primary); border-radius: 2px; animation: ind 1.3s infinite ease-in-out; }
-@keyframes ind { 0% { transform: translateX(120%); } 100% { transform: translateX(-260%); } }
+/* ===== תפריט ערכות ===== */
+.menu { position:fixed; top:60px; left:8px; z-index:40; min-width:200px; padding:8px 0; background:var(--surface); border-radius:12px;
+  box-shadow:0 4px 16px rgba(0,0,0,.18); border:1px solid var(--line); }
+.menu[hidden] { display:none; }
+.menu-item { width:100%; height:48px; padding:0 16px; border:0; background:none; font:inherit; font-size:15px; color:var(--ink); cursor:pointer;
+  display:flex; align-items:center; gap:12px; text-align:right; }
+.swatch { width:22px; height:22px; border-radius:50%; border:1px solid var(--line); flex:none; }
+.menu-item .chk { margin-inline-start:auto; color:var(--accent); visibility:hidden; }
+.menu-item[aria-checked="true"] .chk { visibility:visible; }
 
-/* ===== Primary tabs ===== */
-.tabs { display: flex; background: var(--md-surface); border-bottom: 1px solid var(--md-outline-variant); position: sticky; top: 64px; z-index: 9; }
-.tab {
-  flex: 1; height: 48px; border: 0; background: none; cursor: pointer; font: inherit;
-  font-size: 14px; font-weight: 500; letter-spacing: .1px; color: var(--md-on-surface-variant);
-  display: flex; align-items: center; justify-content: center; gap: 8px; position: relative;
-}
-.tab[aria-selected="true"] { color: var(--md-primary); }
-.tab[aria-selected="true"]::after {
-  content: ""; position: absolute; bottom: 0; left: 18%; right: 18%; height: 3px;
-  background: var(--md-primary); border-radius: 3px 3px 0 0;
-}
-.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 12px; line-height: 20px; text-align: center;
-  background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-.badge:empty { display: none; }
+/* ===== לשוניות ===== */
+.tabs { position:sticky; top:67px; z-index:19; display:flex; background:var(--surface); border-bottom:1px solid var(--line); }
+.tab { flex:1; height:48px; border:0; background:none; cursor:pointer; font:inherit; font-size:15px; font-weight:500; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; gap:8px; position:relative; }
+.tab[aria-selected="true"] { color:var(--accent); }
+.tab[aria-selected="true"]::after { content:""; position:absolute; bottom:0; left:18%; right:18%; height:3px; background:var(--accent); border-radius:3px 3px 0 0; }
+.badge { min-width:20px; height:20px; padding:0 6px; border-radius:10px; font-size:12px; line-height:20px; text-align:center; background:var(--accent-soft); color:var(--accent); }
+.badge:empty { display:none; }
 
-/* ===== רשימת כרטיסים ===== */
-main { max-width: 1100px; margin: 0 auto; padding: 16px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+/* ===== ציר זמן ===== */
+main { max-width:860px; margin:0 auto; padding:20px 16px 48px; }
+.group { display:grid; grid-template-columns:84px 1fr; gap:0 16px; margin-bottom:28px; }
+.when { position:sticky; top:130px; align-self:start; text-align:center; padding:4px 0; }
+.when .day { font-size:34px; line-height:38px; font-weight:700; color:var(--accent); }
+.when .mon { font-size:15px; font-weight:500; margin-top:2px; }
+.when .yr  { font-size:12px; color:var(--muted); }
+.when .wd  { font-size:12px; color:var(--muted); margin-top:6px; }
+.when .tag { display:inline-block; margin-top:8px; padding:2px 10px; border-radius:10px; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:500; }
+.entries { border-inline-start:2px solid var(--accent-soft); padding-inline-start:18px; position:relative; }
+.entries::before { content:""; position:absolute; top:14px; inset-inline-start:-7px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); }
+.entry { padding:14px 0; }
+.entry + .entry { border-top:1px solid var(--line); }
+.pair { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px 16px; }
+.role { font-size:12px; color:var(--muted); letter-spacing:.4px; }
+.nm { font-size:17px; line-height:24px; font-weight:600; }
+.meta { font-size:13px; color:var(--muted); }
+.info { margin-top:10px; display:flex; flex-direction:column; gap:4px; font-size:14px; }
+.info div { display:flex; align-items:center; gap:8px; color:var(--ink); }
+.info svg { color:var(--accent); }
+.actions { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.btn { height:36px; padding:0 16px; border:0; border-radius:18px; font:inherit; font-size:14px; font-weight:500; display:inline-flex; align-items:center; gap:8px; cursor:pointer; text-decoration:none; }
+.btn.fill { background:var(--accent); color:var(--on-accent); }
+.btn.text { background:none; color:var(--accent); padding:0 12px; }
 
-/* ===== Filled card ===== */
-.card { background: var(--md-surface-container); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.card-head { display: flex; align-items: center; gap: 12px; }
-.card-head .lead { width: 40px; height: 40px; border-radius: 50%; background: var(--md-primary-container); color: var(--md-on-primary-container);
-  display: flex; align-items: center; justify-content: center; }
-.card-head .txt { flex: 1; min-width: 0; }
-.title-m { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: .15px; margin: 0; }
-.body-m { font-size: 14px; line-height: 20px; color: var(--md-on-surface-variant); }
-
-/* ===== List item עם אווטאר ===== */
-.person { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
-.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 500; flex: none; }
-.avatar.g { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-.avatar.b { background: var(--md-tertiary-container);  color: var(--md-on-tertiary-container); }
-.person .role { font-size: 12px; line-height: 16px; letter-spacing: .5px; color: var(--md-on-surface-variant); }
-.person .nm { font-size: 16px; line-height: 24px; font-weight: 500; }
-hr.div { border: 0; border-top: 1px solid var(--md-outline-variant); margin: 0; }
-
-/* ===== Assist chip (קריא בלבד) ===== */
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 8px;
-  border: 1px solid var(--md-outline); color: var(--md-on-surface); font-size: 14px; font-weight: 500; letter-spacing: .1px; }
-.chip svg { color: var(--md-primary); }
-.chip.tonal { border-color: transparent; background: var(--md-primary-container); color: var(--md-on-primary-container); }
-.chip.tonal svg { color: inherit; }
-
-/* ===== Buttons ===== */
-.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.btn { height: 40px; padding: 0 24px; border: 0; border-radius: 20px; font: inherit; font-size: 14px; font-weight: 500; letter-spacing: .1px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
-.btn.tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); padding: 0 24px 0 24px; }
-.btn.text  { background: none; color: var(--md-primary); padding: 0 12px; }
-.btn.filled { background: var(--md-primary); color: var(--md-on-primary); }
-
-/* ===== מצבים ריקים / שגיאה ===== */
-.empty { text-align: center; padding: 64px 16px; color: var(--md-on-surface-variant); }
-.empty svg { width: 56px; height: 56px; color: var(--md-outline); margin-bottom: 12px; }
-.empty .title-m { color: var(--md-on-surface); margin-bottom: 4px; }
-.error-box { background: var(--md-error-container); color: var(--md-on-error-container); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-
-/* ===== Snackbar ===== */
-.snackbar { position: fixed; bottom: 16px; left: 50%; transform: translate(-50%, 120px); transition: transform .25s cubic-bezier(.2,0,0,1);
-  min-width: 240px; max-width: calc(100% - 32px); background: var(--md-inverse-surface); color: var(--md-inverse-on-surface);
-  border-radius: 4px; padding: 14px 16px; box-shadow: 0 3px 8px var(--md-shadow); z-index: 30; }
-.snackbar.show { transform: translate(-50%, 0); }
+/* ===== מצבים ===== */
+.empty { text-align:center; padding:64px 16px; color:var(--muted); }
+.empty svg { width:52px; height:52px; color:var(--accent); opacity:.6; margin-bottom:12px; }
+.empty .t { font-size:17px; font-weight:500; color:var(--ink); margin-bottom:4px; }
+.error-box { background:#fde7e4; color:#5a0d06; border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.error-box .btn.fill { background:#b3261e; color:#fff; align-self:flex-start; }
+.snackbar { position:fixed; bottom:16px; left:50%; transform:translate(-50%,120px); transition:transform .25s; min-width:220px; max-width:calc(100% - 32px);
+  background:var(--ink); color:var(--bg); border-radius:6px; padding:12px 16px; box-shadow:0 3px 8px rgba(0,0,0,.25); z-index:50; }
+.snackbar.show { transform:translate(-50%,0); }
 </style>
 </head>
 <body>
@@ -149,11 +109,20 @@ hr.div { border: 0; border-top: 1px solid var(--md-outline-variant); margin: 0; 
     <svg class="i" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
   </a>
   <h1>בשורות טובות</h1>
+  <button class="icon-btn state" id="themeBtn" aria-label="בחירת צבעים" aria-haspopup="true" aria-expanded="false">
+    <svg class="i" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zM6.5 12c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+  </button>
   <button class="icon-btn state" id="refreshBtn" aria-label="רענון">
     <svg class="i" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
   </button>
 </header>
 <div class="progress" id="progress" role="progressbar" aria-label="טוען"></div>
+
+<div class="menu" id="themeMenu" role="menu" hidden>
+  <button class="menu-item state" role="menuitemradio" data-theme="cream"><span class="swatch" style="background:#7a6a1f"></span>קרם וזהב<svg class="i chk" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></button>
+  <button class="menu-item state" role="menuitemradio" data-theme="blue"><span class="swatch" style="background:#17407a"></span>כחול עמוק<svg class="i chk" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></button>
+  <button class="menu-item state" role="menuitemradio" data-theme="gray"><span class="swatch" style="background:#0f766e"></span>אפור נייטרלי<svg class="i chk" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></button>
+</div>
 
 <nav class="tabs" role="tablist">
   <button class="tab state" role="tab" id="tabEngaged" data-tab="engaged" aria-selected="true">אירוסין <span class="badge" id="cntEngaged"></span></button>
@@ -161,7 +130,6 @@ hr.div { border: 0; border-top: 1px solid var(--md-outline-variant); margin: 0; 
 </nav>
 
 <main id="list" role="tabpanel"></main>
-
 <div class="snackbar" id="snackbar" role="status" aria-live="polite"></div>
 
 <script src="js/news-api.js"></script>
@@ -170,22 +138,16 @@ const listEl = document.getElementById('list');
 const progress = document.getElementById('progress');
 let engaged = [], weddings = [], currentTab = 'engaged';
 
-/* ---------- אייקונים (Material Symbols) ---------- */
 const IC = {
-  heart: '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
-  event: '<path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>',
-  pin:  '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>',
-  bus:  '<path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>',
-  call: '<path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>',
-  nav:  '<path d="M21.71 11.29l-9-9a.996.996 0 0 0-1.41 0l-9 9a.996.996 0 0 0 0 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 0 0 0-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>',
-  warn: '<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>'
+  heart:'<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
+  event:'<path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>',
+  pin:'<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>',
+  bus:'<path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>',
+  call:'<path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>',
+  nav:'<path d="M21.71 11.29l-9-9a.996.996 0 0 0-1.41 0l-9 9a.996.996 0 0 0 0 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 0 0 0-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>'
 };
-const icon = (n, cls) => `<svg class="i ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-
-function esc(v) {
-  if (v === undefined || v === null) return '';
-  return String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-}
+const icon = (n, c) => `<svg class="i ${c || ''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const esc = v => (v === undefined || v === null) ? '' : String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- תאריך עברי בגימטריה ---------- */
 function gematria(n) {
@@ -199,104 +161,88 @@ function gematria(n) {
   return s.slice(0, -1) + '״' + s.slice(-1);
 }
 const HEB_MONTHS = { tishri:'תשרי', heshvan:'חשוון', cheshvan:'חשוון', kislev:'כסלו', tevet:'טבת', shevat:'שבט',
-  'adar i':'אדר א׳', 'adar ii':'אדר ב׳', adar:'אדר', nisan:'ניסן', iyar:'אייר', sivan:'סיוון',
-  tamuz:'תמוז', av:'אב', elul:'אלול' };
-
+  'adar i':'אדר א׳', 'adar ii':'אדר ב׳', adar:'אדר', nisan:'ניסן', iyar:'אייר', sivan:'סיוון', tamuz:'תמוז', av:'אב', elul:'אלול' };
 function toLocalDate(v) {
   if (!v) return null;
   const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
   const d = m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : new Date(v);
   return isNaN(d) ? null : d;
 }
-function hebrewDate(d) {
+function hebrewParts(d) {
   try {
     const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).formatToParts(d);
     const get = t => (parts.find(p => p.type === t) || {}).value;
-    const day = parseInt(get('day'), 10);
-    const month = HEB_MONTHS[String(get('month')).toLowerCase()];
-    const year = parseInt(get('year'), 10) % 1000;
-    if (!day || !month || isNaN(year)) return '';
-    return `${gematria(day)} ${month} ${gematria(year)}`;
-  } catch (e) { return ''; }
+    const day = parseInt(get('day'), 10), month = HEB_MONTHS[String(get('month')).toLowerCase()], year = parseInt(get('year'), 10) % 1000;
+    if (!day || !month || isNaN(year)) return null;
+    return { day: gematria(day), month, year: gematria(year) };
+  } catch (e) { return null; }
 }
-function dateInfo(v) {
-  const d = toLocalDate(v);
-  if (!d) return { main: String(v || ''), sub: '' };
-  const greg = d.toLocaleDateString('he-IL', { day:'numeric', month:'numeric', year:'numeric' });
-  const wd = d.toLocaleDateString('he-IL', { weekday:'long' });
-  return { main: hebrewDate(d) || greg, sub: `${wd} · ${greg}` };
-}
-function daysUntil(v) {
-  const d = toLocalDate(v); if (!d) return null;
+const hebText = d => { const p = d && hebrewParts(d); return p ? `${p.day} ${p.month} ${p.year}` : ''; };
+function todayIsrael() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }); }
+function daysUntil(key) {
+  const d = toLocalDate(key); if (!d) return null;
   const t = todayIsrael().split('-').map(Number);
-  const today = new Date(t[0], t[1] - 1, t[2], 12);
-  return Math.round((d - today) / 86400000);
+  return Math.round((d - new Date(t[0], t[1] - 1, t[2], 12)) / 86400000);
 }
 
-/* ---------- חלוקה ללשוניות ---------- */
-function todayIsrael() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }); }
+/* ---------- נתונים ---------- */
+const engKey = r => String(r.engagement_date || r.created_at || '').slice(0, 10);
 function split(items) {
   const today = todayIsrael();
   weddings = items.filter(r => r.date && String(r.date).slice(0, 10) >= today)
                   .sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  engaged = items.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  engaged = items.slice().sort((a, b) => engKey(b).localeCompare(engKey(a)));
   document.getElementById('cntEngaged').textContent = engaged.length || '';
   document.getElementById('cntWeddings').textContent = weddings.length || '';
 }
-
-/* ---------- בניית כרטיסים ---------- */
-const initial = n => { const c = [...String(n || '').trim().replace(/^["'״׳]+/, '')][0]; return c || '·'; };
-const line = (a, b) => [a, b].filter(Boolean).map(esc).join(' · ');
-
-function person(role, name, a, b, cls) {
-  return `<div class="person">
-    <div class="avatar ${cls}">${esc(initial(name))}</div>
-    <div><div class="role">${role}</div><div class="nm">${esc(name) || '—'}</div>
-    <div class="body-m">${line(a, b)}</div></div></div>`;
+function groupBy(rows, keyFn) {
+  const map = new Map();
+  rows.forEach(r => { const k = keyFn(r); if (!map.has(k)) map.set(k, []); map.get(k).push(r); });
+  return [...map.entries()];
 }
-function peopleBlock(r) {
-  return person('החתן', r.name, r.groom_city, r.groom_school, 'g') + person('הכלה', r.bride_name, r.bride_city, r.bride_school, 'b');
+
+/* ---------- תצוגה ---------- */
+const line = (a, b) => [a, b].filter(Boolean).map(esc).join(' · ');
+function who(role, name, a, b) {
+  return `<div><div class="role">${role}</div><div class="nm">${esc(name) || '—'}</div><div class="meta">${line(a, b)}</div></div>`;
+}
+function whenBlock(key, showTag) {
+  const d = toLocalDate(key);
+  if (!d) return `<div class="when"><div class="day">—</div></div>`;
+  const p = hebrewParts(d);
+  const wd = d.toLocaleDateString('he-IL', { weekday: 'long' });
+  const greg = `${d.getDate()}.${d.getMonth() + 1}.${String(d.getFullYear()).slice(2)}`;
+  const n = daysUntil(key);
+  const tag = showTag ? (n === 0 ? 'היום' : n === 1 ? 'מחר' : '') : '';
+  return `<div class="when">
+    <div class="day">${p ? p.day : d.getDate()}</div>
+    <div class="mon">${p ? p.month : ''}</div>
+    <div class="yr">${p ? p.year : ''}</div>
+    <div class="wd">${esc(wd)} · ${greg}</div>
+    ${tag ? `<span class="tag">${tag}</span>` : ''}
+  </div>`;
 }
 function callBtn(r) {
-  return r.groom_phone ? `<a class="btn tonal state" href="tel:${esc(r.groom_phone)}">${icon('call', 'sm')}יצירת קשר</a>` : '';
+  return r.groom_phone ? `<a class="btn fill state" href="tel:${esc(r.groom_phone)}">${icon('call', 'sm')}יצירת קשר</a>` : '';
 }
-
-function engagedCard(r) {
-  const di = r.engagement_date ? dateInfo(r.engagement_date) : null;
-  const wd = r.date ? dateInfo(r.date) : null;
-  return `<article class="card">
-    <div class="card-head">
-      <div class="lead">${icon('heart')}</div>
-      <div class="txt"><h2 class="title-m">${di ? esc(di.main) : 'אירוסין'}</h2>
-        <div class="body-m">${di ? esc(di.sub) : 'מזל טוב!'}</div></div>
-    </div>
-    <hr class="div">
-    ${peopleBlock(r)}
-    ${wd ? `<div class="chips"><span class="chip">${icon('event', 'sm')}חתונה: ${esc(wd.main)}</span></div>` : ''}
+function engagedEntry(r) {
+  const wd = r.date ? hebText(toLocalDate(r.date)) : '';
+  return `<article class="entry">
+    <div class="pair">${who('החתן', r.name, r.groom_city, r.groom_school)}${who('הכלה', r.bride_name, r.bride_city, r.bride_school)}</div>
+    ${wd ? `<div class="info"><div>${icon('event', 'sm')}חתונה: ${esc(wd)}</div></div>` : ''}
     ${r.groom_phone ? `<div class="actions">${callBtn(r)}</div>` : ''}
   </article>`;
 }
-
-function weddingCard(r) {
-  const di = dateInfo(r.date);
-  const n = daysUntil(r.date);
-  const when = n === 0 ? 'היום' : n === 1 ? 'מחר' : (n > 1 && n <= 14 ? `בעוד ${n} ימים` : '');
-  const shuttle = [];
-  if (r.chuppah_shuttle_time) shuttle.push('חופה ' + esc(r.chuppah_shuttle_time));
-  if (r.dancing_shuttle_time) shuttle.push('ריקודים ' + esc(r.dancing_shuttle_time));
+function weddingEntry(r) {
   const q = r.place ? encodeURIComponent(r.place) : '';
-  return `<article class="card">
-    <div class="card-head">
-      <div class="lead">${icon('event')}</div>
-      <div class="txt"><h2 class="title-m">${esc(di.main)}</h2><div class="body-m">${esc(di.sub)}</div></div>
-      ${when ? `<span class="chip tonal">${when}</span>` : ''}
-    </div>
-    <hr class="div">
-    ${peopleBlock(r)}
-    ${(r.place || shuttle.length) ? `<div class="chips">
-      ${r.place ? `<span class="chip">${icon('pin', 'sm')}${esc(r.place)}</span>` : ''}
-      ${shuttle.length ? `<span class="chip">${icon('bus', 'sm')}${shuttle.join(' · ')}</span>` : ''}
-    </div>` : ''}
+  const sh = [];
+  if (r.chuppah_shuttle_time) sh.push('חופה ' + esc(r.chuppah_shuttle_time));
+  if (r.dancing_shuttle_time) sh.push('ריקודים ' + esc(r.dancing_shuttle_time));
+  return `<article class="entry">
+    <div class="pair">${who('החתן', r.name, r.groom_city, r.groom_school)}${who('הכלה', r.bride_name, r.bride_city, r.bride_school)}</div>
+    ${(r.place || sh.length) ? `<div class="info">
+      ${r.place ? `<div>${icon('pin', 'sm')}${esc(r.place)}</div>` : ''}
+      ${sh.length ? `<div>${icon('bus', 'sm')}הסעות: ${sh.join(' · ')}</div>` : ''}</div>` : ''}
     <div class="actions">
       ${callBtn(r)}
       ${q ? `<a class="btn text state" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">${icon('pin', 'sm')}גוגל מפות</a>
@@ -304,56 +250,69 @@ function weddingCard(r) {
     </div>
   </article>`;
 }
-
-function empty(ic, title, sub) {
-  return `<div class="empty">${icon(ic)}<div class="title-m">${title}</div><div class="body-m">${sub}</div></div>`;
-}
+const empty = (ic, t, s) => `<div class="empty">${icon(ic)}<div class="t">${t}</div><div>${s}</div></div>`;
 
 function render() {
-  for (const t of ['engaged', 'weddings']) {
-    document.getElementById(t === 'engaged' ? 'tabEngaged' : 'tabWeddings').setAttribute('aria-selected', String(currentTab === t));
-  }
-  const rows = currentTab === 'engaged' ? engaged : weddings;
+  document.getElementById('tabEngaged').setAttribute('aria-selected', String(currentTab === 'engaged'));
+  document.getElementById('tabWeddings').setAttribute('aria-selected', String(currentTab === 'weddings'));
+  const isW = currentTab === 'weddings';
+  const rows = isW ? weddings : engaged;
   if (!rows.length) {
-    listEl.innerHTML = currentTab === 'engaged'
-      ? empty('heart', 'אין אירוסין להצגה', 'כשיתווספו בשורות חדשות הן יופיעו כאן')
-      : empty('event', 'אין חתונות קרובות', 'כשייקבעו תאריכים הם יופיעו כאן');
+    listEl.innerHTML = isW ? empty('event', 'אין חתונות קרובות', 'כשייקבעו תאריכים הם יופיעו כאן')
+                           : empty('heart', 'אין אירוסין להצגה', 'כשיתווספו בשורות חדשות הן יופיעו כאן');
     return;
   }
-  listEl.innerHTML = `<div class="grid">${rows.map(currentTab === 'engaged' ? engagedCard : weddingCard).join('')}</div>`;
+  const groups = groupBy(rows, isW ? (r => String(r.date).slice(0, 10)) : engKey);
+  listEl.innerHTML = groups.map(([key, items]) => `<section class="group">
+      ${whenBlock(key, isW)}
+      <div class="entries">${items.map(isW ? weddingEntry : engagedEntry).join('')}</div>
+    </section>`).join('');
 }
 
+/* ---------- אינטראקציה ---------- */
 let snackTimer;
 function snack(msg) {
   const s = document.getElementById('snackbar');
   s.textContent = msg; s.classList.add('show');
   clearTimeout(snackTimer); snackTimer = setTimeout(() => s.classList.remove('show'), 2500);
 }
-
 function setTab(t) {
   currentTab = t;
   try { history.replaceState(null, '', '?tab=' + t); } catch (e) {}
-  render();
-  window.scrollTo({ top: 0 });
+  render(); window.scrollTo({ top: 0 });
 }
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+/* בחירת ערכת צבעים */
+const THEME_BG = { cream: '#fbf6ea', blue: '#f4f7fb', gray: '#f5f5f5' };
+const menu = document.getElementById('themeMenu'), themeBtn = document.getElementById('themeBtn');
+function applyTheme(t, save) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeColor').setAttribute('content', THEME_BG[t] || '#ffffff');
+  menu.querySelectorAll('.menu-item').forEach(b => b.setAttribute('aria-checked', String(b.dataset.theme === t)));
+  if (save) { try { localStorage.setItem('news_theme', t); } catch (e) {} }
+}
+function toggleMenu(open) {
+  menu.hidden = !open; themeBtn.setAttribute('aria-expanded', String(open));
+}
+themeBtn.addEventListener('click', e => { e.stopPropagation(); toggleMenu(menu.hidden); });
+menu.querySelectorAll('.menu-item').forEach(b => b.addEventListener('click', () => { applyTheme(b.dataset.theme, true); toggleMenu(false); }));
+document.addEventListener('click', () => toggleMenu(false));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleMenu(false); });
+applyTheme(document.documentElement.getAttribute('data-theme') || 'cream', false);
 
 async function load(force) {
   progress.classList.add('on');
   try {
     const data = await NewsApi.load(force);
-    split(data.items || []);
-    render();
+    split(data.items || []); render();
     if (force) snack('הנתונים עודכנו');
   } catch (err) {
     console.error(err);
-    listEl.innerHTML = `<div class="error-box">
-      <div style="display:flex;gap:12px;align-items:center;">${icon('warn')}<div><div class="title-m">שגיאה בטעינת הנתונים</div><div>${esc(err.message)}</div></div></div>
-      <div class="actions"><button class="btn filled state" id="retryBtn">נסו שוב</button></div></div>`;
+    listEl.innerHTML = `<div class="error-box"><div><strong>שגיאה בטעינת הנתונים</strong><br>${esc(err.message)}</div>
+      <button class="btn fill state" id="retryBtn">נסו שוב</button></div>`;
     document.getElementById('retryBtn').addEventListener('click', () => load(true));
-  } finally {
-    progress.classList.remove('on');
-  }
+  } finally { progress.classList.remove('on'); }
 }
 document.getElementById('refreshBtn').addEventListener('click', () => load(true));
 
