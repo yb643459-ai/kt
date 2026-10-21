@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>בשורות טובות | לוח השמחות</title>
 <link rel="stylesheet" href="css/style.css">
+<style>
+  .news-tabs { display:flex; gap:6px; margin-bottom:16px; border-bottom:1px solid rgba(0,0,0,.1); }
+  .news-tab { flex:1; padding:12px 8px; background:transparent; border:0; border-bottom:3px solid transparent;
+    font:inherit; font-weight:700; font-size:16px; color:var(--muted); cursor:pointer; }
+  .news-tab.active { background:var(--accent-soft, rgba(122,106,31,.08)); color:var(--ink, #2a2118); border-bottom-color:var(--gold, #7a6a1f); }
+  .news-tab .cnt { font-weight:400; font-size:13px; margin-inline-start:4px; }
+  .sub { color:var(--muted); font-size:13px; }
+</style>
 </head>
 <body>
 
@@ -21,22 +29,19 @@
   <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
 
   <div class="card-panel">
+    <div class="news-tabs" role="tablist">
+      <button class="news-tab" id="tabEngaged" data-tab="engaged" role="tab">אירוסין<span class="cnt"></span></button>
+      <button class="news-tab" id="tabWeddings" data-tab="weddings" role="tab">חתונות<span class="cnt"></span></button>
+    </div>
     <div class="toolbar">
-      <div id="countLabel" style="color: var(--muted); font-weight: 700;"></div>
+      <div></div>
       <button class="btn btn-ghost btn-sm" id="refreshBtn">↻ רענון</button>
     </div>
     <div class="table-wrap">
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>החתן</th>
-            <th>הכלה</th>
-            <th>תאריכים</th>
-            <th>יצירת קשר</th>
-          </tr>
-        </thead>
+        <thead id="tableHead"></thead>
         <tbody id="tableBody">
-          <tr><td colspan="4" class="loading-row">טוען נתונים…</td></tr>
+          <tr><td colspan="5" class="loading-row">טוען נתונים…</td></tr>
         </tbody>
       </table>
     </div>
@@ -47,62 +52,130 @@
 
 <script src="js/news-api.js"></script>
 <script>
+const tableHead = document.getElementById('tableHead');
 const tableBody = document.getElementById('tableBody');
-const countLabel = document.getElementById('countLabel');
+let engaged = [], weddings = [], currentTab = 'engaged';
 
 function esc(v) {
   if (v === undefined || v === null) return '';
   return String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
-// תאריך לועזי + עברי, בצורה בטוחה
+/* ---------- תאריך עברי בגימטריה ---------- */
+function gematria(n) {
+  if (n === 15) return 'ט״ו';
+  if (n === 16) return 'ט״ז';
+  const H = [[400,'ת'],[300,'ש'],[200,'ר'],[100,'ק'],[90,'צ'],[80,'פ'],[70,'ע'],[60,'ס'],[50,'נ'],[40,'מ'],
+             [30,'ל'],[20,'כ'],[10,'י'],[9,'ט'],[8,'ח'],[7,'ז'],[6,'ו'],[5,'ה'],[4,'ד'],[3,'ג'],[2,'ב'],[1,'א']];
+  let s = '';
+  for (const [v, l] of H) while (n >= v) { s += l; n -= v; }
+  if (s.length === 1) return s + '׳';
+  return s.slice(0, -1) + '״' + s.slice(-1);
+}
+const HEB_MONTHS = { tishri:'תשרי', heshvan:'חשוון', cheshvan:'חשוון', kislev:'כסלו', tevet:'טבת', shevat:'שבט',
+  'adar i':'אדר א׳', 'adar ii':'אדר ב׳', adar:'אדר', nisan:'ניסן', iyar:'אייר', sivan:'סיוון',
+  tamuz:'תמוז', av:'אב', elul:'אלול' };
+
+// ממיר מחרוזת תאריך (YYYY-MM-DD...) לאובייקט Date מקומי בצהריים - בלי הזזות אזור זמן
+function toLocalDate(v) {
+  if (!v) return null;
+  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : new Date(v);
+  return isNaN(d) ? null : d;
+}
+function hebrewDate(d) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).formatToParts(d);
+    const get = t => (parts.find(p => p.type === t) || {}).value;
+    const day = parseInt(get('day'), 10);
+    const month = HEB_MONTHS[String(get('month')).toLowerCase()];
+    const year = parseInt(get('year'), 10) % 1000;
+    if (!day || !month || isNaN(year)) return '';
+    return `${gematria(day)} ${month} ${gematria(year)}`;
+  } catch (e) { return ''; }
+}
 function fmtDate(v) {
-  if (!v) return '';
-  const d = new Date(v);
-  if (isNaN(d)) return esc(v);
-  let greg = '', heb = '';
-  try { greg = d.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }); } catch (e) {}
-  try { heb = d.toLocaleDateString('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) {}
-  return esc(heb || greg) + (heb && greg ? `<br><span style="color:var(--muted); font-size:13px;">${esc(greg)}</span>` : '');
+  const d = toLocalDate(v);
+  if (!d) return esc(v || '');
+  const heb = hebrewDate(d);
+  const greg = d.toLocaleDateString('he-IL', { day:'numeric', month:'numeric', year:'numeric' });
+  const wd = d.toLocaleDateString('he-IL', { weekday:'long' });
+  return `<strong>${esc(heb || greg)}</strong><br><span class="sub">${esc(wd)} · ${esc(greg)}</span>`;
+}
+
+/* ---------- חלוקה ללשוניות ---------- */
+function todayIsrael() {
+  const s = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }); // YYYY-MM-DD
+  return s;
+}
+function split(items) {
+  const today = todayIsrael();
+  // חתונה = יש תאריך חתונה שעדיין לא עבר (כמו בלוח הקיים - נעלמת מהיום שאחרי)
+  weddings = items.filter(r => r.date && String(r.date).slice(0, 10) >= today)
+                  .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  // אירוסין = בלי תאריך חתונה, מהחדש לישן
+  engaged = items.filter(r => !r.date)
+                 .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  document.querySelector('#tabEngaged .cnt').textContent = engaged.length ? `(${engaged.length})` : '';
+  document.querySelector('#tabWeddings .cnt').textContent = weddings.length ? `(${weddings.length})` : '';
 }
 
 function sub(a, b) {
-  const parts = [a, b].filter(Boolean).map(esc);
-  return parts.length ? `<br><span style="color:var(--muted); font-size:13px;">${parts.join(' · ')}</span>` : '';
+  const p = [a, b].filter(Boolean).map(esc);
+  return p.length ? `<br><span class="sub">${p.join(' · ')}</span>` : '';
+}
+function phoneCell(r) {
+  return r.groom_phone ? `<a class="btn btn-secondary btn-sm" href="tel:${esc(r.groom_phone)}">📞 יצירת קשר</a>` : '—';
+}
+function people(r) {
+  return `<td><strong>${esc(r.name)}</strong>${sub(r.groom_city, r.groom_school)}</td>
+          <td><strong>${esc(r.bride_name)}</strong>${sub(r.bride_city, r.bride_school)}</td>`;
 }
 
-function render(items) {
-  countLabel.textContent = items.length ? `${items.length} בשורות` : '';
-  if (!items.length) {
-    tableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="big">💍</span>אין נתונים להצגה</div></td></tr>`;
-    return;
+function render() {
+  document.getElementById('tabEngaged').classList.toggle('active', currentTab === 'engaged');
+  document.getElementById('tabWeddings').classList.toggle('active', currentTab === 'weddings');
+
+  if (currentTab === 'engaged') {
+    tableHead.innerHTML = `<tr><th>החתן</th><th>הכלה</th><th>תאריך האירוסין</th><th>יצירת קשר</th></tr>`;
+    if (!engaged.length) { tableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="big">💍</span>אין אירוסין להצגה</div></td></tr>`; return; }
+    tableBody.innerHTML = engaged.map(r => `<tr>${people(r)}
+      <td>${r.engagement_date ? fmtDate(r.engagement_date) : '—'}</td><td>${phoneCell(r)}</td></tr>`).join('');
+  } else {
+    tableHead.innerHTML = `<tr><th>החתן</th><th>הכלה</th><th>תאריך החתונה</th><th>הסעות</th><th>יצירת קשר</th></tr>`;
+    if (!weddings.length) { tableBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><span class="big">🎉</span>אין חתונות קרובות להצגה</div></td></tr>`; return; }
+    tableBody.innerHTML = weddings.map(r => {
+      const shuttle = [];
+      if (r.chuppah_shuttle_time) shuttle.push('חופה: ' + esc(r.chuppah_shuttle_time));
+      if (r.dancing_shuttle_time) shuttle.push('ריקודים: ' + esc(r.dancing_shuttle_time));
+      return `<tr>${people(r)}
+        <td>${fmtDate(r.date)}${r.place ? `<br><span class="sub">${esc(r.place)}</span>` : ''}</td>
+        <td>${shuttle.join('<br>') || '—'}</td><td>${phoneCell(r)}</td></tr>`;
+    }).join('');
   }
-  tableBody.innerHTML = items.map(r => {
-    const dates = [];
-    if (r.engagement_date) dates.push('<strong>אירוסין:</strong> ' + fmtDate(r.engagement_date));
-    if (r.date) dates.push('<strong>חתונה:</strong> ' + fmtDate(r.date) + (r.place ? '<br><span style="color:var(--muted); font-size:13px;">' + esc(r.place) + '</span>' : ''));
-    const phone = r.groom_phone ? `<a class="btn btn-secondary btn-sm" href="tel:${esc(r.groom_phone)}">📞 יצירת קשר</a>` : '—';
-    return `<tr>
-      <td><strong>${esc(r.name)}</strong>${sub(r.groom_city, r.groom_school)}</td>
-      <td><strong>${esc(r.bride_name)}</strong>${sub(r.bride_city, r.bride_school)}</td>
-      <td>${dates.join('<br>') || '—'}</td>
-      <td>${phone}</td>
-    </tr>`;
-  }).join('');
 }
+
+function setTab(t) {
+  currentTab = t;
+  try { history.replaceState(null, '', '?tab=' + t); } catch (e) {}
+  render();
+}
+document.querySelectorAll('.news-tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
 
 async function load(force) {
-  tableBody.innerHTML = `<tr><td colspan="4" class="loading-row">טוען נתונים…</td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="5" class="loading-row">טוען נתונים…</td></tr>`;
   try {
     const data = await NewsApi.load(force);
-    render(data.items || []);
+    split(data.items || []);
+    render();
   } catch (err) {
     console.error(err);
-    tableBody.innerHTML = `<tr><td colspan="4" class="loading-row">שגיאה בטעינה: ${esc(err.message)}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="5" class="loading-row">שגיאה בטעינה: ${esc(err.message)}</td></tr>`;
   }
 }
-
 document.getElementById('refreshBtn').addEventListener('click', () => load(true));
+
+currentTab = new URLSearchParams(location.search).get('tab') === 'weddings' ? 'weddings' : 'engaged';
 load(false);
 </script>
 </body>
