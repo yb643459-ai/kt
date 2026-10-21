@@ -3,58 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fffbff">
 <title>בשורות טובות | לוח השמחות</title>
-<link rel="stylesheet" href="css/style.css">
 <style>
-  .news-tabs { display:flex; gap:6px; margin-bottom:16px; border-bottom:1px solid rgba(0,0,0,.1); }
-  .news-tab { flex:1; padding:12px 8px; background:transparent; border:0; border-bottom:3px solid transparent;
-    font:inherit; font-weight:700; font-size:16px; color:var(--muted); cursor:pointer; }
-  .news-tab.active { background:var(--accent-soft, rgba(122,106,31,.08)); color:var(--ink, #2a2118); border-bottom-color:var(--gold, #7a6a1f); }
-  .news-tab .cnt { font-weight:400; font-size:13px; margin-inline-start:4px; }
-  .sub { color:var(--muted); font-size:13px; }
+/* ===== Material Design 3 - טוקנים (ערכת צבעים מבוססת זהב-זית, בהירה + כהה) ===== */
+:root {
+  --md-primary: #6d5e0f;           --md-on-primary: #ffffff;
+  --md-primary-container: #f8e287; --md-on-primary-container: #211b00;
+  --md-secondary-container: #eee2bc; --md-on-secondary-container: #221b04;
+  --md-tertiary-container: #c7ecca;  --md-on-tertiary-container: #00210e;
+  --md-error: #ba1a1a;             --md-error-container: #ffdad6; --md-on-error-container: #410002;
+  --md-surface: #fffbff;           --md-on-surface: #1d1b16; --md-on-surface-variant: #4b4739;
+  --md-surface-container-low: #f8f3e8;
+  --md-surface-container: #f2ede2;
+  --md-surface-container-high: #ece7dc;
+  --md-outline: #7c7767;           --md-outline-variant: #cdc6b4;
+  --md-inverse-surface: #333029;   --md-inverse-on-surface: #f6f0e7;
+  --md-shadow: rgba(0,0,0,.18);
+  --md-font: Roboto, "Heebo", "Assistant", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --md-primary: #dbc66e;          --md-on-primary: #3a3000;
+    --md-primary-container: #534600; --md-on-primary-container: #f8e287;
+    --md-secondary-container: #4d4629; --md-on-secondary-container: #eee2bc;
+    --md-tertiary-container: #1a4b2c;  --md-on-tertiary-container: #c7ecca;
+    --md-error: #ffb4ab;            --md-error-container: #93000a; --md-on-error-container: #ffdad6;
+    --md-surface: #15130c;          --md-on-surface: #e8e2d4; --md-on-surface-variant: #cdc6b4;
+    --md-surface-container-low: #1d1b14;
+    --md-surface-container: #211f18;
+    --md-surface-container-high: #2c2a22;
+    --md-outline: #969080;          --md-outline-variant: #4b4739;
+    --md-inverse-surface: #e8e2d4;  --md-inverse-on-surface: #333029;
+    --md-shadow: rgba(0,0,0,.5);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--md-surface); color: var(--md-on-surface);
+  font-family: var(--md-font); font-size: 14px; line-height: 20px; letter-spacing: .25px;
+}
+svg.i { width: 24px; height: 24px; fill: currentColor; flex: none; }
+svg.i.sm { width: 18px; height: 18px; }
+
+/* ===== State layer משותף (hover / focus / pressed) ===== */
+.state { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.state::before { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.state:hover::before { opacity: .08; }
+.state:focus-visible::before { opacity: .12; }
+.state:active::before { opacity: .12; }
+.state:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+
+/* ===== Top app bar ===== */
+.app-bar {
+  position: sticky; top: 0; z-index: 10; height: 64px; padding: 0 4px;
+  display: flex; align-items: center; gap: 4px;
+  background: var(--md-surface); color: var(--md-on-surface);
+}
+.app-bar h1 { flex: 1; margin: 0; font-size: 22px; line-height: 28px; font-weight: 400; letter-spacing: 0; }
+.icon-btn {
+  width: 48px; height: 48px; border: 0; border-radius: 50%; background: none; color: var(--md-on-surface-variant);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;
+}
+
+/* ===== Linear progress ===== */
+.progress { height: 4px; background: var(--md-secondary-container); overflow: hidden; visibility: hidden; }
+.progress.on { visibility: visible; }
+.progress::after { content: ""; display: block; height: 100%; width: 40%; background: var(--md-primary); border-radius: 2px; animation: ind 1.3s infinite ease-in-out; }
+@keyframes ind { 0% { transform: translateX(120%); } 100% { transform: translateX(-260%); } }
+
+/* ===== Primary tabs ===== */
+.tabs { display: flex; background: var(--md-surface); border-bottom: 1px solid var(--md-outline-variant); position: sticky; top: 64px; z-index: 9; }
+.tab {
+  flex: 1; height: 48px; border: 0; background: none; cursor: pointer; font: inherit;
+  font-size: 14px; font-weight: 500; letter-spacing: .1px; color: var(--md-on-surface-variant);
+  display: flex; align-items: center; justify-content: center; gap: 8px; position: relative;
+}
+.tab[aria-selected="true"] { color: var(--md-primary); }
+.tab[aria-selected="true"]::after {
+  content: ""; position: absolute; bottom: 0; left: 18%; right: 18%; height: 3px;
+  background: var(--md-primary); border-radius: 3px 3px 0 0;
+}
+.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 12px; line-height: 20px; text-align: center;
+  background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.badge:empty { display: none; }
+
+/* ===== רשימת כרטיסים ===== */
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+
+/* ===== Filled card ===== */
+.card { background: var(--md-surface-container); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.card-head { display: flex; align-items: center; gap: 12px; }
+.card-head .lead { width: 40px; height: 40px; border-radius: 50%; background: var(--md-primary-container); color: var(--md-on-primary-container);
+  display: flex; align-items: center; justify-content: center; }
+.card-head .txt { flex: 1; min-width: 0; }
+.title-m { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: .15px; margin: 0; }
+.body-m { font-size: 14px; line-height: 20px; color: var(--md-on-surface-variant); }
+
+/* ===== List item עם אווטאר ===== */
+.person { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 500; flex: none; }
+.avatar.g { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.avatar.b { background: var(--md-tertiary-container);  color: var(--md-on-tertiary-container); }
+.person .role { font-size: 12px; line-height: 16px; letter-spacing: .5px; color: var(--md-on-surface-variant); }
+.person .nm { font-size: 16px; line-height: 24px; font-weight: 500; }
+hr.div { border: 0; border-top: 1px solid var(--md-outline-variant); margin: 0; }
+
+/* ===== Assist chip (קריא בלבד) ===== */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--md-outline); color: var(--md-on-surface); font-size: 14px; font-weight: 500; letter-spacing: .1px; }
+.chip svg { color: var(--md-primary); }
+.chip.tonal { border-color: transparent; background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.chip.tonal svg { color: inherit; }
+
+/* ===== Buttons ===== */
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { height: 40px; padding: 0 24px; border: 0; border-radius: 20px; font: inherit; font-size: 14px; font-weight: 500; letter-spacing: .1px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
+.btn.tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); padding: 0 24px 0 24px; }
+.btn.text  { background: none; color: var(--md-primary); padding: 0 12px; }
+.btn.filled { background: var(--md-primary); color: var(--md-on-primary); }
+
+/* ===== מצבים ריקים / שגיאה ===== */
+.empty { text-align: center; padding: 64px 16px; color: var(--md-on-surface-variant); }
+.empty svg { width: 56px; height: 56px; color: var(--md-outline); margin-bottom: 12px; }
+.empty .title-m { color: var(--md-on-surface); margin-bottom: 4px; }
+.error-box { background: var(--md-error-container); color: var(--md-on-error-container); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ===== Snackbar ===== */
+.snackbar { position: fixed; bottom: 16px; left: 50%; transform: translate(-50%, 120px); transition: transform .25s cubic-bezier(.2,0,0,1);
+  min-width: 240px; max-width: calc(100% - 32px); background: var(--md-inverse-surface); color: var(--md-inverse-on-surface);
+  border-radius: 4px; padding: 14px 16px; box-shadow: 0 3px 8px var(--md-shadow); z-index: 30; }
+.snackbar.show { transform: translate(-50%, 0); }
 </style>
 </head>
 <body>
 
-<nav class="site-nav">
-  <a class="brand" href="index.html">לוח השמחות</a>
+<header class="app-bar">
+  <a class="icon-btn state" href="index.html" aria-label="חזרה ללוח הראשי">
+    <svg class="i" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+  </a>
+  <h1>בשורות טובות</h1>
+  <button class="icon-btn state" id="refreshBtn" aria-label="רענון">
+    <svg class="i" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+  </button>
+</header>
+<div class="progress" id="progress" role="progressbar" aria-label="טוען"></div>
+
+<nav class="tabs" role="tablist">
+  <button class="tab state" role="tab" id="tabEngaged" data-tab="engaged" aria-selected="true">אירוסין <span class="badge" id="cntEngaged"></span></button>
+  <button class="tab state" role="tab" id="tabWeddings" data-tab="weddings" aria-selected="false">חתונות <span class="badge" id="cntWeddings"></span></button>
 </nav>
 
-<header class="site-header">
-  <h1>בשורות טובות</h1>
-  <p>החתנים והחתונות האחרונים, בס"ד</p>
-</header>
+<main id="list" role="tabpanel"></main>
 
-<main class="page">
-  <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
-
-  <div class="card-panel">
-    <div class="news-tabs" role="tablist">
-      <button class="news-tab" id="tabEngaged" data-tab="engaged" role="tab">אירוסין<span class="cnt"></span></button>
-      <button class="news-tab" id="tabWeddings" data-tab="weddings" role="tab">חתונות<span class="cnt"></span></button>
-    </div>
-    <div class="toolbar">
-      <div></div>
-      <button class="btn btn-ghost btn-sm" id="refreshBtn">↻ רענון</button>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead id="tableHead"></thead>
-        <tbody id="tableBody">
-          <tr><td colspan="5" class="loading-row">טוען נתונים…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</main>
-
-<footer class="site-footer">לוח השמחות</footer>
+<div class="snackbar" id="snackbar" role="status" aria-live="polite"></div>
 
 <script src="js/news-api.js"></script>
 <script>
-const tableHead = document.getElementById('tableHead');
-const tableBody = document.getElementById('tableBody');
+const listEl = document.getElementById('list');
+const progress = document.getElementById('progress');
 let engaged = [], weddings = [], currentTab = 'engaged';
+
+/* ---------- אייקונים (Material Symbols) ---------- */
+const IC = {
+  heart: '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
+  event: '<path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>',
+  pin:  '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>',
+  bus:  '<path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>',
+  call: '<path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>',
+  nav:  '<path d="M21.71 11.29l-9-9a.996.996 0 0 0-1.41 0l-9 9a.996.996 0 0 0 0 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 0 0 0-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>',
+  warn: '<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>'
+};
+const icon = (n, cls) => `<svg class="i ${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 
 function esc(v) {
   if (v === undefined || v === null) return '';
@@ -76,7 +202,6 @@ const HEB_MONTHS = { tishri:'תשרי', heshvan:'חשוון', cheshvan:'חשוו
   'adar i':'אדר א׳', 'adar ii':'אדר ב׳', adar:'אדר', nisan:'ניסן', iyar:'אייר', sivan:'סיוון',
   tamuz:'תמוז', av:'אב', elul:'אלול' };
 
-// ממיר מחרוזת תאריך (YYYY-MM-DD...) לאובייקט Date מקומי בצהריים - בלי הזזות אזור זמן
 function toLocalDate(v) {
   if (!v) return null;
   const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -94,90 +219,140 @@ function hebrewDate(d) {
     return `${gematria(day)} ${month} ${gematria(year)}`;
   } catch (e) { return ''; }
 }
-function fmtDate(v) {
+function dateInfo(v) {
   const d = toLocalDate(v);
-  if (!d) return esc(v || '');
-  const heb = hebrewDate(d);
+  if (!d) return { main: String(v || ''), sub: '' };
   const greg = d.toLocaleDateString('he-IL', { day:'numeric', month:'numeric', year:'numeric' });
   const wd = d.toLocaleDateString('he-IL', { weekday:'long' });
-  return `<strong>${esc(heb || greg)}</strong><br><span class="sub">${esc(wd)} · ${esc(greg)}</span>`;
+  return { main: hebrewDate(d) || greg, sub: `${wd} · ${greg}` };
+}
+function daysUntil(v) {
+  const d = toLocalDate(v); if (!d) return null;
+  const t = todayIsrael().split('-').map(Number);
+  const today = new Date(t[0], t[1] - 1, t[2], 12);
+  return Math.round((d - today) / 86400000);
 }
 
 /* ---------- חלוקה ללשוניות ---------- */
-function todayIsrael() {
-  const s = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }); // YYYY-MM-DD
-  return s;
-}
+function todayIsrael() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }); }
 function split(items) {
   const today = todayIsrael();
-  // חתונה = יש תאריך חתונה שעדיין לא עבר (כמו בלוח הקיים - נעלמת מהיום שאחרי)
   weddings = items.filter(r => r.date && String(r.date).slice(0, 10) >= today)
                   .sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  // אירוסין = כל הפריטים (גם אחרי שנקבע תאריך חתונה), מהחדש לישן
-  engaged = items.slice()
-                 .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
-  document.querySelector('#tabEngaged .cnt').textContent = engaged.length ? `(${engaged.length})` : '';
-  document.querySelector('#tabWeddings .cnt').textContent = weddings.length ? `(${weddings.length})` : '';
+  engaged = items.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  document.getElementById('cntEngaged').textContent = engaged.length || '';
+  document.getElementById('cntWeddings').textContent = weddings.length || '';
 }
 
-function sub(a, b) {
-  const p = [a, b].filter(Boolean).map(esc);
-  return p.length ? `<br><span class="sub">${p.join(' · ')}</span>` : '';
+/* ---------- בניית כרטיסים ---------- */
+const initial = n => { const c = [...String(n || '').trim().replace(/^["'״׳]+/, '')][0]; return c || '·'; };
+const line = (a, b) => [a, b].filter(Boolean).map(esc).join(' · ');
+
+function person(role, name, a, b, cls) {
+  return `<div class="person">
+    <div class="avatar ${cls}">${esc(initial(name))}</div>
+    <div><div class="role">${role}</div><div class="nm">${esc(name) || '—'}</div>
+    <div class="body-m">${line(a, b)}</div></div></div>`;
 }
-function placeBlock(place) {
-  if (!place) return '';
-  const q = encodeURIComponent(place);
-  return `<br><span class="sub">${esc(place)}</span>
-    <br><a class="sub" style="text-decoration:underline;" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">📍 גוגל מפות</a>
-    · <a class="sub" style="text-decoration:underline;" target="_blank" rel="noopener" href="https://waze.com/ul?q=${q}&navigate=yes">Waze</a>`;
+function peopleBlock(r) {
+  return person('החתן', r.name, r.groom_city, r.groom_school, 'g') + person('הכלה', r.bride_name, r.bride_city, r.bride_school, 'b');
 }
-function phoneCell(r) {
-  return r.groom_phone ? `<a class="btn btn-secondary btn-sm" href="tel:${esc(r.groom_phone)}">📞 יצירת קשר</a>` : '—';
+function callBtn(r) {
+  return r.groom_phone ? `<a class="btn tonal state" href="tel:${esc(r.groom_phone)}">${icon('call', 'sm')}יצירת קשר</a>` : '';
 }
-function people(r) {
-  return `<td><strong>${esc(r.name)}</strong>${sub(r.groom_city, r.groom_school)}</td>
-          <td><strong>${esc(r.bride_name)}</strong>${sub(r.bride_city, r.bride_school)}</td>`;
+
+function engagedCard(r) {
+  const di = r.engagement_date ? dateInfo(r.engagement_date) : null;
+  const wd = r.date ? dateInfo(r.date) : null;
+  return `<article class="card">
+    <div class="card-head">
+      <div class="lead">${icon('heart')}</div>
+      <div class="txt"><h2 class="title-m">${di ? esc(di.main) : 'אירוסין'}</h2>
+        <div class="body-m">${di ? esc(di.sub) : 'מזל טוב!'}</div></div>
+    </div>
+    <hr class="div">
+    ${peopleBlock(r)}
+    ${wd ? `<div class="chips"><span class="chip">${icon('event', 'sm')}חתונה: ${esc(wd.main)}</span></div>` : ''}
+    ${r.groom_phone ? `<div class="actions">${callBtn(r)}</div>` : ''}
+  </article>`;
+}
+
+function weddingCard(r) {
+  const di = dateInfo(r.date);
+  const n = daysUntil(r.date);
+  const when = n === 0 ? 'היום' : n === 1 ? 'מחר' : (n > 1 && n <= 14 ? `בעוד ${n} ימים` : '');
+  const shuttle = [];
+  if (r.chuppah_shuttle_time) shuttle.push('חופה ' + esc(r.chuppah_shuttle_time));
+  if (r.dancing_shuttle_time) shuttle.push('ריקודים ' + esc(r.dancing_shuttle_time));
+  const q = r.place ? encodeURIComponent(r.place) : '';
+  return `<article class="card">
+    <div class="card-head">
+      <div class="lead">${icon('event')}</div>
+      <div class="txt"><h2 class="title-m">${esc(di.main)}</h2><div class="body-m">${esc(di.sub)}</div></div>
+      ${when ? `<span class="chip tonal">${when}</span>` : ''}
+    </div>
+    <hr class="div">
+    ${peopleBlock(r)}
+    ${(r.place || shuttle.length) ? `<div class="chips">
+      ${r.place ? `<span class="chip">${icon('pin', 'sm')}${esc(r.place)}</span>` : ''}
+      ${shuttle.length ? `<span class="chip">${icon('bus', 'sm')}${shuttle.join(' · ')}</span>` : ''}
+    </div>` : ''}
+    <div class="actions">
+      ${callBtn(r)}
+      ${q ? `<a class="btn text state" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">${icon('pin', 'sm')}גוגל מפות</a>
+      <a class="btn text state" target="_blank" rel="noopener" href="https://waze.com/ul?q=${q}&navigate=yes">${icon('nav', 'sm')}Waze</a>` : ''}
+    </div>
+  </article>`;
+}
+
+function empty(ic, title, sub) {
+  return `<div class="empty">${icon(ic)}<div class="title-m">${title}</div><div class="body-m">${sub}</div></div>`;
 }
 
 function render() {
-  document.getElementById('tabEngaged').classList.toggle('active', currentTab === 'engaged');
-  document.getElementById('tabWeddings').classList.toggle('active', currentTab === 'weddings');
-
-  if (currentTab === 'engaged') {
-    tableHead.innerHTML = `<tr><th>החתן</th><th>הכלה</th><th>תאריך האירוסין</th><th>יצירת קשר</th></tr>`;
-    if (!engaged.length) { tableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="big">💍</span>אין אירוסין להצגה</div></td></tr>`; return; }
-    tableBody.innerHTML = engaged.map(r => `<tr>${people(r)}
-      <td>${r.engagement_date ? fmtDate(r.engagement_date) : '—'}</td><td>${phoneCell(r)}</td></tr>`).join('');
-  } else {
-    tableHead.innerHTML = `<tr><th>החתן</th><th>הכלה</th><th>תאריך החתונה</th><th>הסעות</th><th>יצירת קשר</th></tr>`;
-    if (!weddings.length) { tableBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><span class="big">🎉</span>אין חתונות קרובות להצגה</div></td></tr>`; return; }
-    tableBody.innerHTML = weddings.map(r => {
-      const shuttle = [];
-      if (r.chuppah_shuttle_time) shuttle.push('חופה: ' + esc(r.chuppah_shuttle_time));
-      if (r.dancing_shuttle_time) shuttle.push('ריקודים: ' + esc(r.dancing_shuttle_time));
-      return `<tr>${people(r)}
-        <td>${fmtDate(r.date)}${placeBlock(r.place)}</td>
-        <td>${shuttle.join('<br>') || '—'}</td><td>${phoneCell(r)}</td></tr>`;
-    }).join('');
+  for (const t of ['engaged', 'weddings']) {
+    document.getElementById(t === 'engaged' ? 'tabEngaged' : 'tabWeddings').setAttribute('aria-selected', String(currentTab === t));
   }
+  const rows = currentTab === 'engaged' ? engaged : weddings;
+  if (!rows.length) {
+    listEl.innerHTML = currentTab === 'engaged'
+      ? empty('heart', 'אין אירוסין להצגה', 'כשיתווספו בשורות חדשות הן יופיעו כאן')
+      : empty('event', 'אין חתונות קרובות', 'כשייקבעו תאריכים הם יופיעו כאן');
+    return;
+  }
+  listEl.innerHTML = `<div class="grid">${rows.map(currentTab === 'engaged' ? engagedCard : weddingCard).join('')}</div>`;
+}
+
+let snackTimer;
+function snack(msg) {
+  const s = document.getElementById('snackbar');
+  s.textContent = msg; s.classList.add('show');
+  clearTimeout(snackTimer); snackTimer = setTimeout(() => s.classList.remove('show'), 2500);
 }
 
 function setTab(t) {
   currentTab = t;
   try { history.replaceState(null, '', '?tab=' + t); } catch (e) {}
   render();
+  window.scrollTo({ top: 0 });
 }
-document.querySelectorAll('.news-tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
 
 async function load(force) {
-  tableBody.innerHTML = `<tr><td colspan="5" class="loading-row">טוען נתונים…</td></tr>`;
+  progress.classList.add('on');
   try {
     const data = await NewsApi.load(force);
     split(data.items || []);
     render();
+    if (force) snack('הנתונים עודכנו');
   } catch (err) {
     console.error(err);
-    tableBody.innerHTML = `<tr><td colspan="5" class="loading-row">שגיאה בטעינה: ${esc(err.message)}</td></tr>`;
+    listEl.innerHTML = `<div class="error-box">
+      <div style="display:flex;gap:12px;align-items:center;">${icon('warn')}<div><div class="title-m">שגיאה בטעינת הנתונים</div><div>${esc(err.message)}</div></div></div>
+      <div class="actions"><button class="btn filled state" id="retryBtn">נסו שוב</button></div></div>`;
+    document.getElementById('retryBtn').addEventListener('click', () => load(true));
+  } finally {
+    progress.classList.remove('on');
   }
 }
 document.getElementById('refreshBtn').addEventListener('click', () => load(true));
