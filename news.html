@@ -113,8 +113,8 @@ function split(items) {
   // חתונה = יש תאריך חתונה שעדיין לא עבר (כמו בלוח הקיים - נעלמת מהיום שאחרי)
   weddings = items.filter(r => r.date && String(r.date).slice(0, 10) >= today)
                   .sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  // אירוסין = בלי תאריך חתונה, מהחדש לישן
-  engaged = items.filter(r => !r.date)
+  // אירוסין = כל הפריטים (גם אחרי שנקבע תאריך חתונה), מהחדש לישן
+  engaged = items.slice()
                  .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   document.querySelector('#tabEngaged .cnt').textContent = engaged.length ? `(${engaged.length})` : '';
   document.querySelector('#tabWeddings .cnt').textContent = weddings.length ? `(${weddings.length})` : '';
@@ -123,6 +123,13 @@ function split(items) {
 function sub(a, b) {
   const p = [a, b].filter(Boolean).map(esc);
   return p.length ? `<br><span class="sub">${p.join(' · ')}</span>` : '';
+}
+function placeBlock(place) {
+  if (!place) return '';
+  const q = encodeURIComponent(place);
+  return `<br><span class="sub">${esc(place)}</span>
+    <br><a class="sub" style="text-decoration:underline;" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">📍 גוגל מפות</a>
+    · <a class="sub" style="text-decoration:underline;" target="_blank" rel="noopener" href="https://waze.com/ul?q=${q}&navigate=yes">Waze</a>`;
 }
 function phoneCell(r) {
   return r.groom_phone ? `<a class="btn btn-secondary btn-sm" href="tel:${esc(r.groom_phone)}">📞 יצירת קשר</a>` : '—';
@@ -149,7 +156,7 @@ function render() {
       if (r.chuppah_shuttle_time) shuttle.push('חופה: ' + esc(r.chuppah_shuttle_time));
       if (r.dancing_shuttle_time) shuttle.push('ריקודים: ' + esc(r.dancing_shuttle_time));
       return `<tr>${people(r)}
-        <td>${fmtDate(r.date)}${r.place ? `<br><span class="sub">${esc(r.place)}</span>` : ''}</td>
+        <td>${fmtDate(r.date)}${placeBlock(r.place)}</td>
         <td>${shuttle.join('<br>') || '—'}</td><td>${phoneCell(r)}</td></tr>`;
     }).join('');
   }
