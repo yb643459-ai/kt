@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תוצאות הבחירות | קול תורה</title>
+<link rel="stylesheet" href="css/style.css?v=2">
+<style>
+  .bar-track { min-width: 90px; height: 9px; border-radius: 5px; background: var(--accent-soft); }
+  .bar-fill { height: 100%; border-radius: 5px; background: var(--gold); }
+  .data-table td.num, .data-table th.num { font-variant-numeric: tabular-nums; }
+  .below-threshold td { color: var(--muted); }
+  .mandates { font-weight: 800; color: var(--accent-dark); }
+  .search-input { width: 100%; padding: 11px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    font-family: 'Assistant', sans-serif; font-size: 15px; background: var(--surface); color: var(--ink); margin-bottom: 8px; }
+  .search-input:focus { border-color: var(--accent); outline: none; }
+  .panel-gap { margin-top: 18px; }
+  .note { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+  h2.section-title { font-size: 18px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="brand" href="index.html">ישיבת קול תורה</a>
+</nav>
+
+<header class="site-header">
+  <h1>תוצאות הבחירות</h1>
+  <p id="updated">טוען נתונים…</p>
+  <div class="live-counter">
+    <div class="stat"><span class="num" id="turnout">–</span><span class="lbl">אחוז הצבעה</span></div>
+    <div class="stat"><span class="num" id="voters">–</span><span class="lbl">מצביעים</span></div>
+    <div class="stat"><span class="num" id="valid">–</span><span class="lbl">קולות כשרים</span></div>
+    <div class="stat"><span class="num" id="invalid">–</span><span class="lbl">קולות פסולים</span></div>
+  </div>
+</header>
+
+<main class="page">
+  <a class="nav-back" href="index.html">→ חזרה ללוח הראשי</a>
+
+  <div class="form-msg error" id="err" style="display:none"></div>
+
+  <div class="card-panel">
+    <div class="toolbar">
+      <h2 class="section-title" style="margin:0">קולות ומנדטים לפי רשימה</h2>
+      <div class="tabs" role="group" aria-label="בחירת כנסת">
+        <button class="tab-btn active" data-year="25">הכנסת ה-25</button>
+        <button class="tab-btn" data-year="26">הכנסת ה-26</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>רשימה</th><th class="num">קולות</th><th class="num">אחוז</th><th class="num">מנדטים</th><th></th></tr></thead>
+        <tbody id="parties"><tr><td colspan="5" class="loading-row">טוען…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="note" id="threshold"></div>
+    <div class="note">חלוקת המנדטים מחושבת ללא הסכמי עודפים, ואינה רשמית.</div>
+  </div>
+
+  <div class="card-panel panel-gap">
+    <h2 class="section-title">הצבעה לפי יישוב</h2>
+    <input class="search-input" type="search" id="q" placeholder="הקלידו שם יישוב…" autocomplete="off">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>יישוב</th><th class="num">מצביעים</th><th class="num">קולות כשרים</th></tr></thead>
+        <tbody id="cities"></tbody>
+      </table>
+    </div>
+    <div class="note" id="cityNote"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  הנתונים נלקחים מאתר הבחירות הרשמי ומתעדכנים אוטומטית.
+</footer>
+
+<script>
+// ===== קוד הפענוח והחישוב (מועתק מ-lib/elections.js ומ-lib/mandates.js) =====
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', quoted = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (quoted && text[i + 1] === '"') { field += '"'; i++; }
+      else quoted = !quoted;
+    } else if (c === ',' && !quoted) { row.push(field); field = ''; }
+    else if ((c === '\n' || c === '\r') && !quoted) {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field); if (row.some(x => x.trim())) rows.push(row); row = []; field = '';
+    } else field += c;
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  if (quoted) throw new Error('CSV_QUOTE_ERROR');
+  const headers = rows.shift()?.map(s => s.trim()) || [];
+  if (!headers.length) throw new Error('CSV_EMPTY');
+  return rows.map(values => Object.fromEntries(headers.map((h,i) => [h, (values[i] || '').trim()])));
+}
+const aliases = {
+  eligible: ['בזב','בעלי זכות בחירה'],
+  voters: ['מצביעים','הצביעו'],
+  invalid: ['פסולים','קולות פסולים'],
+  valid: ['כשרים','קולות כשרים'],
+  city: ['שם ישוב','שם יישוב','שם_ישוב','שם_יישוב']
+};
+const normalize = s => s.replace(/[\s_\-]/g,'').replace(/["']/g,'');
+const pick = (headers, names) => headers.find(h => names.some(n => normalize(h) === normalize(n)));
+const number = value => { const n = Number(String(value ?? '').replace(/,/g,'').trim()); return Number.isFinite(n) ? n : 0; };
+function analyze(csv) {
+  const rows = parseCSV(csv);
+  if (!rows.length) throw new Error('CSV_NO_ROWS');
+  const headers = Object.keys(rows[0]);
+  const cols = Object.fromEntries(Object.entries(aliases).map(([k,v]) => [k,pick(headers,v)]));
+  if (!cols.valid || !cols.voters || !cols.eligible) throw new Error('CSV_MISSING_REQUIRED_COLUMNS');
+  const reserved = new Set([ ...Object.values(cols).filter(Boolean), ...headers.filter(h => ['סמל ישוב','סמל יישוב','סמל ועדה','סמל_ישוב','ועדה','ברזל'].some(n => normalize(h) === normalize(n))) ]);
+  const partyCols = headers.filter(h => !reserved.has(h) && /^[א-ת]{1,3}$/.test(h));
+  const totals = { eligible:0, voters:0, valid:0, invalid:0 };
+  const parties = Object.fromEntries(partyCols.map(p => [p,0]));
+  const cities = [];
+  for (const row of rows) {
+    for (const k of Object.keys(totals)) if (cols[k]) totals[k] += number(row[cols[k]]);
+    for (const p of partyCols) parties[p] += number(row[p]);
+    cities.push({ name: cols.city ? row[cols.city] : '', voters: number(row[cols.voters]), valid: number(row[cols.valid]) });
+  }
+  return { totals, turnout: totals.eligible ? +(totals.voters / totals.eligible * 100).toFixed(2) : 0,
+    parties: Object.entries(parties).map(([letters,votes]) => ({letters,votes})).sort((a,b)=>b.votes-a.votes),
+    cities, localityCount: rows.length };
+}
+
+// Bader-Ofer: threshold, initial quotas, highest averages, surplus agreements.
+const AGREEMENTS_25 = [['מחל','ט'],['פה','כן'],['שס','ג'],['אמת','מרצ']];
+const AGREEMENTS_26 = [['מחל','ט'],['שס','ג']]; // Extend only after confirming ballot letters.
+function allocateMandates(parties, validVotes, agreements = [], seats = 120) {
+  if (!Number.isSafeInteger(validVotes) || validVotes <= 0) throw new Error('INVALID_VALID_VOTES');
+  const seen = new Set();
+  const eligible = parties.filter(p => {
+    if (!Number.isSafeInteger(p.votes) || p.votes < 0 || !p.letters || seen.has(p.letters)) throw new Error('INVALID_PARTY');
+    seen.add(p.letters);
+    return p.votes * 400 >= validVotes * 13; // 3.25%
+  }).map(p => ({...p, mandates:0}));
+  if (!eligible.length) return {parties:[], thresholdVotes:Math.ceil(validVotes*13/400), allocated:0};
+  const byCode = new Map(eligible.map(p=>[p.letters,p]));
+  const used = new Set();
+  const groups = [];
+  for (const pair of agreements) {
+    if (!Array.isArray(pair) || pair.length !== 2 || pair[0] === pair[1]) continue;
+    if (pair.every(code=>byCode.has(code) && !used.has(code))) {
+      pair.forEach(code=>used.add(code));
+      groups.push(pair.map(code=>byCode.get(code)));
+    }
+  }
+  for (const p of eligible) if (!used.has(p.letters)) groups.push([p]);
+  const qualifyingVotes = eligible.reduce((s,p)=>s+p.votes,0);
+  for (const p of eligible) p.mandates = Math.floor(p.votes * seats / qualifyingVotes);
+  const groupSeats = groups.map(members=>({members, votes:members.reduce((s,p)=>s+p.votes,0), seats:members.reduce((s,p)=>s+p.mandates,0)}));
+  let allocated = eligible.reduce((s,p)=>s+p.mandates,0);
+  while (allocated < seats) {
+    groupSeats.sort((a,b) => {
+      const delta = BigInt(b.votes)*BigInt(a.seats+1)-BigInt(a.votes)*BigInt(b.seats+1);
+      return delta > 0n ? 1 : delta < 0n ? -1 : a.members[0].letters.localeCompare(b.members[0].letters,'he');
+    });
+    groupSeats[0].seats++;
+    allocated++;
+  }
+  // Reapportion each pair's combined seats using its internal quota and highest averages.
+  for (const group of groupSeats) {
+    if (group.members.length === 1) {group.members[0].mandates=group.seats; continue;}
+    const [a,b]=group.members;
+    a.mandates=Math.floor(a.votes*group.seats/group.votes);
+    b.mandates=Math.floor(b.votes*group.seats/group.votes);
+    while(a.mandates+b.mandates<group.seats) {
+      const delta=BigInt(a.votes)*BigInt(b.mandates+1)-BigInt(b.votes)*BigInt(a.mandates+1);
+      if(delta>=0n) a.mandates++; else b.mandates++;
+    }
+  }
+  return { parties:eligible.sort((a,b)=>b.mandates-a.mandates || b.votes-a.votes), thresholdVotes:Math.ceil(validVotes*13/400), allocated };
+}
+
+
+// ===== הגדרות =====
+const SOURCES = {
+  '25': 'https://media25.bechirot.gov.il/files/expc.csv',
+  '26': 'https://media26.bechirot.gov.il/files/expc.csv'
+};
+const REFRESH_MS = 60000;
+const PARTY_NAMES_25 = { 'מחל':'הליכוד', 'פה':'יש עתיד', 'ט':'הציונות הדתית', 'כן':'המחנה הממלכתי', 'שס':'שס', 'ג':'יהדות התורה', 'ל':'ישראל ביתנו', 'עם':'רע״ם', 'ום':'חד״ש תע״ל', 'אמת':'העבודה', 'מרצ':'מרצ' };
+
+const nf = new Intl.NumberFormat('he-IL');
+const $ = id => document.getElementById(id);
+let year = '25', data = null, timer = null;
+
+function partyName(code) {
+  return year === '25' && PARTY_NAMES_25[code] ? PARTY_NAMES_25[code] + ' (' + code + ')' : 'רשימה ' + code;
+}
+function cell(tr, text, cls) {
+  const td = document.createElement('td');
+  td.textContent = text;
+  if (cls) td.className = cls;
+  tr.appendChild(td);
+}
+
+function decode(buf) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+  catch (e) { return new TextDecoder('windows-1255').decode(buf); }
+}
+
+async function fetchData(y) {
+  const r = await fetch(SOURCES[y], { cache: 'no-store' });
+  if (!r.ok) throw new Error('SOURCE_HTTP_' + r.status);
+  const d = analyze(decode(await r.arrayBuffer()));
+  let alloc = { parties: [], thresholdVotes: 0 };
+  try { alloc = allocateMandates(d.parties, d.totals.valid, []); } catch (e) {}
+  const mand = new Map(alloc.parties.map(p => [p.letters, p.mandates]));
+  const valid = d.totals.valid || 1;
+  return {
+    updatedAt: new Date().toISOString(),
+    totals: d.totals, turnout: d.turnout, thresholdVotes: alloc.thresholdVotes,
+    parties: d.parties.map(p => ({ letters: p.letters, votes: p.votes, pct: +(p.votes / valid * 100).toFixed(2), mandates: mand.get(p.letters) || 0 })),
+    cities: d.cities.filter(c => c.name)
+  };
+}
+
+function render() {
+  if (!data) return;
+  $('turnout').textContent = data.turnout.toLocaleString('he-IL') + '%';
+  $('voters').textContent = nf.format(data.totals.voters);
+  $('valid').textContent = nf.format(data.totals.valid);
+  $('invalid').textContent = nf.format(data.totals.invalid);
+  $('updated').textContent = 'עודכן לאחרונה: ' + new Date(data.updatedAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  $('threshold').textContent = 'אחוז החסימה: 3.25% (כ-' + nf.format(data.thresholdVotes) + ' קולות כשרים).';
+
+  const max = Math.max(1, ...data.parties.map(p => p.votes));
+  const tbody = $('parties');
+  tbody.replaceChildren();
+  data.parties.filter(p => p.votes > 0).slice(0, 40).forEach(p => {
+    const tr = document.createElement('tr');
+    if (!p.mandates) tr.className = 'below-threshold';
+    cell(tr, partyName(p.letters));
+    cell(tr, nf.format(p.votes), 'num');
+    cell(tr, p.pct.toLocaleString('he-IL') + '%', 'num');
+    cell(tr, p.mandates ? String(p.mandates) : '–', p.mandates ? 'num mandates' : 'num');
+    const td = document.createElement('td');
+    const track = document.createElement('div'); track.className = 'bar-track';
+    const fill = document.createElement('div'); fill.className = 'bar-fill';
+    fill.style.width = (p.votes / max * 100) + '%';
+    track.appendChild(fill); td.appendChild(track); tr.appendChild(td);
+    tbody.appendChild(tr);
+  });
+  renderCities();
+}
+
+function renderCities() {
+  const q = $('q').value.trim();
+  const body = $('cities');
+  body.replaceChildren();
+  if (!data) return;
+  let list = q ? data.cities.filter(c => c.name.includes(q)) : [...data.cities].sort((a, b) => b.voters - a.voters);
+  const shown = list.slice(0, 30);
+  shown.forEach(c => {
+    const tr = document.createElement('tr');
+    cell(tr, c.name);
+    cell(tr, nf.format(c.voters), 'num');
+    cell(tr, nf.format(c.valid), 'num');
+    body.appendChild(tr);
+  });
+  $('cityNote').textContent = !q ? 'מוצגים 30 היישובים עם מספר המצביעים הגדול ביותר. הקלידו שם כדי לחפש.'
+    : !shown.length ? 'לא נמצא יישוב מתאים.'
+    : list.length > 30 ? 'מוצגות 30 התוצאות הראשונות.' : '';
+}
+
+async function load() {
+  clearTimeout(timer);
+  const myYear = year;
+  try {
+    const result = await fetchData(myYear);
+    if (myYear !== year) return;
+    data = result;
+    $('err').style.display = 'none';
+    render();
+  } catch (e) {
+    if (myYear !== year) return;
+    $('err').textContent = (e instanceof TypeError)
+      ? 'הדפדפן לא הצליח להוריד את קובץ הנתונים (כנראה חסימת CORS של אתר הבחירות, או שהקובץ עדיין לא פורסם).'
+      : 'נתוני הבחירות אינם זמינים כרגע. נסו שוב מאוחר יותר.';
+    $('err').style.display = 'block';
+    if (!data) { $('updated').textContent = ''; $('parties').replaceChildren(); }
+  }
+  timer = setTimeout(load, REFRESH_MS);
+}
+
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
+  year = b.dataset.year;
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
+  data = null;
+  $('updated').textContent = 'טוען נתונים…';
+  ['turnout','voters','valid','invalid'].forEach(id => $(id).textContent = '–');
+  $('parties').replaceChildren(); $('cities').replaceChildren();
+  load();
+}));
+$('q').addEventListener('input', renderCities);
+load();
+</script>
+</body>
+</html>
